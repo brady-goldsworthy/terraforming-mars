@@ -6,6 +6,8 @@ import {CardName} from '../../../common/cards/CardName';
 import {CardType} from '../../../common/cards/CardType';
 import {CardRenderer} from '../render/CardRenderer';
 import {multiplier} from '../Options';
+import {digit} from '../Options';
+import {Size} from '../../../common/cards/render/Size';
 
 export class Helion extends Card implements ICorporationCard {
   constructor() {
@@ -13,21 +15,27 @@ export class Helion extends Card implements ICorporationCard {
       cardType: CardType.CORPORATION,
       name: CardName.HELION,
       tags: [Tag.SPACE],
-      startingMegaCredits: 42,
+      startingMegaCredits: 40,
 
       behavior: {
-        production: {heat: 3},
+        production: {heat: 4},
+        temperatureDiscount: 1
       },
 
       metadata: {
         cardNumber: 'R18',
-        description: 'You start with 3 heat production and 42 M€.',
+        description: 'You start with 4 heat production and 40 M€.',
         renderData: CardRenderer.builder((b) => {
-          b.br;
-          b.production((pb) => pb.heat(3)).nbsp.megacredits(42);
+          b;
+          b.production((pb) => pb.heat(4)).nbsp.megacredits(40);
           b.corpBox('effect', (ce) => {
+            ce.vSpace();
             ce.effect('You may use heat as M€. You may not use M€ as heat.', (eb) => {
               eb.startEffect.text('x').heat(1).equals().megacredits(0, {multiplier});
+            });
+            ce.vSpace(Size.SMALL);
+            ce.effect('You may always spend 7 heat, instead of 8, to raise the temperature.', (eb) => {
+              eb.heat(7, {digit}).startAction.temperature(1);
             });
           });
         }),

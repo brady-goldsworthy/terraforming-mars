@@ -102,6 +102,11 @@ export class Executor implements BehaviorExecutor {
     if (behavior?.greeneryDiscount) {
       player.plantsNeededForGreenery -= behavior.greeneryDiscount;
     }
+
+    if (behavior?.temperatureDiscount) {
+      player.heatNeededForTemperature -= behavior.temperatureDiscount;
+    }
+
     if (behavior.drawCard !== undefined) {
       const drawCard = behavior.drawCard;
       if (typeof(drawCard) === 'number') {

@@ -78,6 +78,9 @@ export interface Behavior {
   /** Greeneries cost one plant less. */
   greeneryDiscount?: 1,
 
+  /** Temperature costs one plant less. */
+  temperatureDiscount?: 1,
+
   // spendResourcesHere: number,
   // spendResource: {type: CardResource, count: number},
   // tile: {type: TileType, space?: SpaceId, spaceType?: SpaceType};

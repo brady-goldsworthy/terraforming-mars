@@ -143,6 +143,8 @@ export class Player {
   public hasTurmoilScienceTagBonus: boolean = false;
   // Ecoline
   public plantsNeededForGreenery: number = 8;
+  // Rebalanced Helion
+  public heatNeededForTemperature: number = 8;
   // Lawsuit
   public removingPlayers: Array<PlayerId> = [];
   // For Playwrights corp.
@@ -1784,7 +1786,7 @@ export class Player {
     // Convert Heat
     const convertHeat = new ConvertHeat();
     if (convertHeat.canAct(this)) {
-      action.options.push(new SelectOption(`Convert ${constants.HEAT_FOR_TEMPERATURE} heat into temperature`, 'Convert heat', () => {
+      action.options.push(new SelectOption(`Convert ${this.heatNeededForTemperature} heat into temperature`, 'Convert heat', () => {
         return convertHeat.action(this);
       }));
     }
@@ -1977,6 +1979,8 @@ export class Player {
       scienceTagCount: this.scienceTagCount,
       // Ecoline
       plantsNeededForGreenery: this.plantsNeededForGreenery,
+      //Rebalanced Helion
+      heatNeededForTemperature: this.heatNeededForTemperature,
       // Lawsuit
       removingPlayers: this.removingPlayers,
       // Playwrights
@@ -2023,6 +2027,7 @@ export class Player {
     player.oceanBonus = d.oceanBonus;
     player.plants = d.plants;
     player.plantsNeededForGreenery = d.plantsNeededForGreenery;
+    player.heatNeededForTemperature = d.heatNeededForTemperature;
     player.production.override(Units.of({
       energy: d.energyProduction,
       heat: d.heatProduction,
