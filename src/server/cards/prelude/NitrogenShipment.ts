@@ -1,32 +1,27 @@
-import {Player} from '../../Player';
+import {digit} from './../Options';
 import {PreludeCard} from './PreludeCard';
 import {IProjectCard} from '../IProjectCard';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
+import {Tag} from '../../../common/cards/Tag';
 
 export class NitrogenShipment extends PreludeCard implements IProjectCard {
   constructor() {
     super({
       name: CardName.NITROGEN_SHIPMENT,
-      startingMegacredits: 5,
-
+      tags: [Tag.EARTH],
       behavior: {
-        production: {plants: 1},
-        tr: 1,
+        tr: 2,
+        stock: {plants: 5},
       },
 
       metadata: {
         cardNumber: 'P24',
         renderData: CardRenderer.builder((b) => {
-          b.production((pb) => pb.plants(1)).tr(1).br;
-          b.megacredits(5);
+          b.tr(2).plants(5, {digit});
         }),
-        description: 'Increase your plant production 1 step. Increase your TR 1 step. Gain 5 M€.',
+        description: 'Increase your TR 2 steps. Gain 5 plants.',
       },
     });
-  }
-  public override bespokePlay(player: Player) {
-    player.megaCredits += 5;
-    return undefined;
   }
 }
