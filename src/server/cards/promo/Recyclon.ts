@@ -18,20 +18,20 @@ export class Recyclon extends Card implements ICorporationCard {
       cardType: CardType.CORPORATION,
       name: CardName.RECYCLON,
       tags: [Tag.MICROBE, Tag.BUILDING],
-      startingMegaCredits: 38,
+      startingMegaCredits: 40,
       resourceType: CardResource.MICROBE,
 
       behavior: {
-        production: {steel: 1},
+        production: {steel: 2},
         addResources: 1,
       },
 
       metadata: {
         cardNumber: 'R26',
-        description: 'You start with 38 M€ and 1 steel production.',
+        description: 'You start with 40 M€ and 2 steel production.',
         renderData: CardRenderer.builder((b) => {
           b.br.br;
-          b.megacredits(38).nbsp.production((pb) => pb.steel(1));
+          b.megacredits(40).nbsp.production((pb) => pb.steel(2));
           b.corpBox('effect', (ce) => {
             ce.effect('When you play a building tag, including this, gain 1 microbe to this card, or remove 2 microbes here and raise your plant production 1 step.', (eb) => {
               eb.building(1, {played}).colon().microbes(1).or();
