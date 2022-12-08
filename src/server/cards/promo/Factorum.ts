@@ -29,10 +29,13 @@ export class Factorum extends Card implements IActionCard, ICorporationCard {
         renderData: CardRenderer.builder((b) => {
           b.megacredits(37).nbsp.production((pb) => pb.steel(1));
           b.corpBox('action', (ce) => {
-            ce.vSpace(Size.LARGE);
-            ce.action('Increase your energy production 1 step IF YOU HAVE NO ENERGY RESOURCES, or spend 3M€ to draw a building card.', (eb) => {
-              eb.empty().arrow().production((pb) => pb.energy(1));
-              eb.or().megacredits(3).startAction.cards(1, {secondaryTag: Tag.BUILDING});
+            ce.vSpace(Size.SMALL);
+            ce.action(undefined, (eb) => {
+              eb.empty().startAction.production((pb) => pb.energy(1)).or();
+            });
+            ce.action('Increase your energy production 1 step IF YOU HAVE NO ENERGY RESOURCES, or spend 3M€ or 1 energy to draw a building card.', (eb) => {
+              
+              eb.energy(1).slash().megacredits(3).startAction.cards(1, {secondaryTag: Tag.BUILDING});
             });
           });
         }),
@@ -41,7 +44,7 @@ export class Factorum extends Card implements IActionCard, ICorporationCard {
   }
 
   public canAct(player: Player): boolean {
-    return player.energy === 0 || player.canAfford(3);
+    return player.energy === 0 || (player.canAfford(3) || player.energy >= 1);
   }
 
   public action(player: Player) {
@@ -63,7 +66,7 @@ export class Factorum extends Card implements IActionCard, ICorporationCard {
     });
 
     if (player.energy > 0) return drawBuildingCard;
-    if (!player.canAfford(3)) return increaseEnergy;
+    if (!(player.canAfford(3) || player.energy >= 1)) return increaseEnergy;
 
     return new OrOptions(increaseEnergy, drawBuildingCard);
   }
