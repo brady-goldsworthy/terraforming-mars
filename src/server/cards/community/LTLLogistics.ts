@@ -29,8 +29,8 @@ export class LTLLogistics extends Card implements IActionCard, ICorporationCard 
           b.megacredits(35).nbsp.cards(1, {secondaryTag: Tag.SCIENCE});
           b.corpBox('action', (ce) => {
             ce.vSpace(Size.LARGE);
-            ce.action('If you have fewer than 5 cards in your hand, draw a card', (eb) => {
-              eb.empty().startAction.cards(1);
+            ce.action('If you have fewer than 5 cards in your hand, draw two cards', (eb) => {
+              eb.empty().startAction.cards(2);
             });
           });
         }),
@@ -43,7 +43,7 @@ export class LTLLogistics extends Card implements IActionCard, ICorporationCard 
   }
 
   public action(player: Player) {
-    player.drawCard(1);
+    player.drawCard(2);
     return undefined
   }
 }
