@@ -22,7 +22,7 @@ export class InterplanetaryCinematics extends Card implements ICorporationCard {
 
       metadata: {
         cardNumber: 'R19',
-        description: 'You start with 20 steel and 30 M€.',
+        description: 'You start with 16 steel and 38 M€.',
         renderData: CardRenderer.builder((b) => {
           b.br.br.br;
           b.megacredits(38).nbsp.steel(16, {digit});
