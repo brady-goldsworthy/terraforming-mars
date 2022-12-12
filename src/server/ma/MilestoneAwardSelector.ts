@@ -15,7 +15,6 @@ import {MilestoneName} from '../../common/ma/MilestoneName';
 import {AwardName} from '../../common/ma/AwardName';
 import {inplaceRemove} from '../../common/utils/utils';
 import {synergies} from './MilestoneAwardSynergies';
-import { Economizer } from '../milestones/Economizer';
 import { Minimalist } from '../milestones/amazonisPlanitia/Minimalist';
 
 type DrawnMilestonesAndAwards = {
