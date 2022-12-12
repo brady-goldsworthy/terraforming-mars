@@ -11,15 +11,15 @@ export class BoringCompany extends Card implements ICorporationCard {
       cardType: CardType.CORPORATION,
       name: CardName.BORING_COMPANY,
       tags: [],
-      startingMegaCredits: 60,
+      startingMegaCredits: 70,
       victoryPoints: 3,
 
       metadata: {
         cardNumber: '',
-        description: 'You start with 60 M€. Gain 3 Victory Points',
+        description: 'You start with 70 M€. Gain 3 Victory Points',
         renderData: CardRenderer.builder((b) => {
           b.vSpace(Size.LARGE).br.br.br;
-          b.megacredits(60, {size: Size.LARGE});
+          b.megacredits(70, {size: Size.LARGE});
         }),
       },
     });
