@@ -121,6 +121,14 @@ export const ALL_MILESTONES: Array<IMilestone> = [
   ...VASTITAS_BOREALIS_MILESTONES,
 ];
 
+export const BANNED_MILESTONES: Array<IMilestone> = [
+  new Minimalist(),
+  new Terran(),
+  new Pioneer(),
+  new Capitalist(),
+  new Gambler()
+];
+
 export namespace Milestones {
   export const ALL = ALL_MILESTONES;
 
