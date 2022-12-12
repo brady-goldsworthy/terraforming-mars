@@ -15,6 +15,8 @@ import {MilestoneName} from '../../common/ma/MilestoneName';
 import {AwardName} from '../../common/ma/AwardName';
 import {inplaceRemove} from '../../common/utils/utils';
 import {synergies} from './MilestoneAwardSynergies';
+import { Economizer } from '../milestones/Economizer';
+import { Minimalist } from '../milestones/amazonisPlanitia/Minimalist';
 
 type DrawnMilestonesAndAwards = {
   milestones: Array<IMilestone>,
@@ -150,6 +152,8 @@ function getRandomMilestonesAndAwards(gameOptions: GameOptions,
 
   // map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[];
 
+  const bannedMilestones: Array<MilestoneName> = [new Minimalist()].map(toName); 
+  // const bannedAwards: Array<AwardName> = [];
   const candidateMilestones: Array<MilestoneName> = [...THARSIS_MILESTONES, ...ELYSIUM_MILESTONES, ...HELLAS_MILESTONES].map(toName);
   const candidateAwards: Array<AwardName> = [...THARSIS_AWARDS, ...ELYSIUM_AWARDS, ...HELLAS_AWARDS].map(toName);
 
@@ -189,6 +193,13 @@ function getRandomMilestonesAndAwards(gameOptions: GameOptions,
     if (!gameOptions.turmoilExtension) {
       inplaceRemove(candidateAwards, 'Politician');
     }
+
+    bannedMilestones.forEach(milestone => {
+      inplaceRemove(candidateMilestones, milestone);
+      console.log("Removed banned milestone: ", milestone);
+    });
+
+    // console.log("candidate milestones: ", candidateMilestones);
   }
 
   inplaceShuffle(candidateMilestones, UnseededRandom.INSTANCE);
