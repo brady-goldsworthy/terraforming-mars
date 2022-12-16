@@ -27,7 +27,8 @@ export class LTLLogistics extends Card implements IActionCard, ICorporationCard 
         description: 'You start with 35 M€.',
         renderData: CardRenderer.builder((b) => {
           b.br.br;
-          b.megacredits(35).nbsp.cards(1, {secondaryTag: Tag.SCIENCE});
+          // b.megacredits(35).nbsp.cards(1, {secondaryTag: Tag.SCIENCE});
+          b.megacredits(35);
           b.corpBox('action', (ce) => {
             ce.vSpace(Size.LARGE);
             ce.action('If you have fewer than 5 cards in your hand, draw two cards', (eb) => {
