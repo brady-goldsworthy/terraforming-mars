@@ -16,14 +16,15 @@ export class LTLLogistics extends Card implements IActionCard, ICorporationCard 
       tags: [Tag.SCIENCE],
       startingMegaCredits: 35,
 
-      firstAction: {
-        text: 'Draw a card with a science tag',
-        drawCard: {count: 1, tag: Tag.SCIENCE},
-      },
+      // firstAction: {
+      //   text: 'Draw a card with a science tag',
+      //   drawCard: {count: 1, tag: Tag.SCIENCE},
+      // },
 
       metadata: {
         cardNumber: '',
-        description: 'You start with 35 M€.  As your first action, reveal cards until you have revealed a science tag. Take it and discard the rest.',
+        // description: 'You start with 35 M€.  As your first action, reveal cards until you have revealed a science tag. Take it and discard the rest.',
+        description: 'You start with 35 M€.',
         renderData: CardRenderer.builder((b) => {
           b.br.br;
           b.megacredits(35).nbsp.cards(1, {secondaryTag: Tag.SCIENCE});
