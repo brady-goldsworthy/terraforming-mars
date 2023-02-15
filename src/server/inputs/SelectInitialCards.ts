@@ -37,17 +37,19 @@ export class SelectInitialCards extends AndOptions implements PlayerInput {
       player.dealtPreludeCards.push(new Merger());
     }
 
+    let numPreludes = player.game.gameOptions.twoCorpsVariant ? 3 : 2
+
     if (player.game.gameOptions.preludeExtension) {
       this.options.push(
         new SelectCard(
-          'Select 2 Prelude cards', undefined, player.dealtPreludeCards,
+          'Select ' + numPreludes + ' Prelude cards', undefined, player.dealtPreludeCards,
           (preludeCards: Array<IProjectCard>) => {
-            if (preludeCards.length !== 2) {
-              throw new Error('Only select 2 preludes');
+            if (preludeCards.length !== numPreludes) {
+              throw new Error('Only select ' + numPreludes + ' preludes');
             }
             player.preludeCardsInHand.push(...preludeCards);
             return undefined;
-          }, {min: 2, max: 2},
+          }, {min: numPreludes, max: numPreludes},
         ),
       );
     }
