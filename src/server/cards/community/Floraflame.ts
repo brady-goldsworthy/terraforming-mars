@@ -1,19 +1,19 @@
 import {Tag} from '../../../common/cards/Tag';
 import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {IProjectCard} from '../IProjectCard';
 import {Card} from '../Card';
 import {ICorporationCard} from '../corporation/ICorporationCard';
 import {CardName} from '../../../common/cards/CardName';
 import {CardType} from '../../../common/cards/CardType';
 import {CardRenderer} from '../render/CardRenderer';
-import {Resources} from '../../../common/Resources';
 import {played} from '../Options';
 import {Size} from '../../../common/cards/render/Size';
 
 export class Floraflame extends Card implements ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.FLORAFLAME,
       tags: [Tag.BUILDING, Tag.PLANT],
       startingMegaCredits: 44, // +1 for the initial change in TR.
@@ -45,23 +45,22 @@ export class Floraflame extends Card implements ICorporationCard {
     return undefined;
   }
 
-  public onCorpCardPlayed(player: Player, card: ICorporationCard) {
-    this.onCardPlayed(player, card);
-    return undefined;
+  public onCorpCardPlayed(player: IPlayer, card: ICorporationCard) {
+    return this.onCardPlayed(player, card);
   }
 
-  public onCardPlayed(player: Player, card: IProjectCard | ICorporationCard) {
+  public onCardPlayed(player: IPlayer, card: IProjectCard | ICorporationCard) {
     if (player.isCorporation(this.name)) {
       const tagCount = player.tags.cardTagCount(card, Tag.BUILDING);
       if (tagCount > 0) {
-        player.addResource(Resources.ENERGY, 2, {log: true});
+        player.heat += 2;
       }
     }
 
     if (player.isCorporation(this.name)) {
       const tagCount = player.tags.cardTagCount(card, Tag.PLANT);
       if (tagCount > 0) {
-        player.addResource(Resources.PLANTS, 1, {log: true});
+        player.plants++;
       }
     }
 

@@ -27,7 +27,6 @@ export interface NewGameConfig {
   board: BoardNameType;
   seed: number;
   initialDraft: boolean;
-  corporationsDraft: boolean;
   randomFirstPlayer: boolean;
 
   // boardName: BoardName;
@@ -55,6 +54,7 @@ export interface NewGameConfig {
   includeVenusMA: boolean;
   moonExpansion: boolean;
   pathfindersExpansion: boolean;
+  ceoExtension: boolean;
 
   // Variants
   draftVariant: boolean;
@@ -74,7 +74,10 @@ export interface NewGameConfig {
   altVenusBoard: boolean;
   escapeVelocityMode: boolean;
   escapeVelocityThreshold: number | undefined;
+  escapeVelocityBonusSeconds: number | undefined;
   escapeVelocityPeriod: number | undefined;
   escapeVelocityPenalty: number | undefined;
-  twoCorpsVariant: boolean,
+  twoCorpsVariant: boolean;
+  customCeos: Array<CardName>;
+  startingCeos: number;
 }

@@ -1,13 +1,13 @@
 import {expect} from 'chai';
-import {cast} from '../../TestingUtils';
+import {cast, churnAction} from '../../TestingUtils';
 import {Ants} from '../../../src/server/cards/base/Ants';
 import {Fish} from '../../../src/server/cards/base/Fish';
 import {ICard} from '../../../src/server/cards/ICard';
 import {MoholeLake} from '../../../src/server/cards/promo/MoholeLake';
-import {Game} from '../../../src/server/Game';
 import {SelectCard} from '../../../src/server/inputs/SelectCard';
 import {SelectSpace} from '../../../src/server/inputs/SelectSpace';
 import {TestPlayer} from '../../TestPlayer';
+import {testGame} from '../../TestGame';
 
 describe('MoholeLake', function() {
   let card: MoholeLake;
@@ -15,9 +15,7 @@ describe('MoholeLake', function() {
 
   beforeEach(function() {
     card = new MoholeLake();
-    player = TestPlayer.BLUE.newPlayer();
-    const redPlayer = TestPlayer.RED.newPlayer();
-    Game.newInstance('gameid', [player, redPlayer], player);
+    [/* skipped */, player] = testGame(2);
   });
 
   it('Can play', function() {
@@ -28,14 +26,14 @@ describe('MoholeLake', function() {
     selectSpace.cb(selectSpace.availableSpaces[0]);
 
     expect(player.game.getTemperature()).to.eq(-28);
-    expect(player.game.board.getOceanCount()).to.eq(1);
+    expect(player.game.board.getOceanSpaces()).has.length(1);
     expect(player.getTerraformRating()).to.eq(22);
     expect(player.plants).to.eq(3);
   });
 
   it('Can act - no target', function() {
     expect(card.canAct()).is.true;
-    expect(card.action(player)).is.undefined;
+    expect(churnAction(card, player)).is.undefined;
   });
 
   it('Can act - single target', function() {

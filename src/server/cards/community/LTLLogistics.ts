@@ -11,7 +11,7 @@ import {Size} from '../../../common/cards/render/Size';
 export class LTLLogistics extends Card implements IActionCard, ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.LTL_LOGISTICS,
       tags: [Tag.SCIENCE],
       startingMegaCredits: 35,

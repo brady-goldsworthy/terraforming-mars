@@ -1,13 +1,13 @@
 <script lang="ts">
 import Vue from 'vue';
-import Button from '@/client/components/common/Button.vue';
+import AppButton from '@/client/components/common/AppButton.vue';
 
-import {Payment} from '@/common/inputs/Payment';
+import {Payment, PAYMENT_KEYS} from '@/common/inputs/Payment';
 import Card from '@/client/components/card/Card.vue';
 import {getCardOrThrow} from '@/client/cards/ClientCardManifest';
 import {CardModel} from '@/common/models/CardModel';
 import {CardOrderStorage} from '@/client/utils/CardOrderStorage';
-import {PaymentWidgetMixin, SelectProjectCardToPlayModel, unit} from '@/client/mixins/PaymentWidgetMixin';
+import {PaymentWidgetMixin, SelectProjectCardToPlayModel} from '@/client/mixins/PaymentWidgetMixin';
 import {PlayerInputModel} from '@/common/models/PlayerInputModel';
 import {PlayerViewModel, PublicPlayerModel} from '@/common/models/PlayerModel';
 import {getPreferences} from '@/client/utils/PreferencesManager';
@@ -58,6 +58,7 @@ export default Vue.extend({
     return {
       cardName: card.name,
       card: card,
+      reserveUnits: card.reserveUnits ?? Units.EMPTY,
       cards: cards,
       cost: 0,
       tags: [],
@@ -68,7 +69,7 @@ export default Vue.extend({
       microbes: 0,
       science: 0,
       seeds: 0,
-      data: 0,
+      auroraiData: 0,
       floaters: 0,
       warning: undefined,
       available: Units.of({}),
@@ -76,14 +77,15 @@ export default Vue.extend({
   },
   components: {
     Card,
-    Button,
+    AppButton,
   },
   mounted() {
     Vue.nextTick(() => {
-      this.$data.card = this.getCard();
-      this.$data.cost = this.$data.card.calculatedCost;
-      this.$data.tags = this.getCardTags(),
-      this.$data.megaCredits = (this as unknown as typeof PaymentWidgetMixin.methods).getMegaCreditsMax();
+      this.card = this.getCard();
+      this.cost = this.card.calculatedCost ?? 0;
+      this.tags = this.getCardTags(),
+      this.reserveUnits = this.card.reserveUnits ?? Units.EMPTY;
+      this.megaCredits = (this as unknown as typeof PaymentWidgetMixin.methods).getMegaCreditsMax();
 
       this.setDefaultValues();
     });
@@ -164,12 +166,12 @@ export default Vue.extend({
         this.science = deductUnits(this.playerinput.science, 1);
       }
 
-      this.available.steel = Math.max(this.thisPlayer.steel - this.card.reserveUnits.steel, 0);
+      this.available.steel = Math.max(this.thisPlayer.steel - this.reserveUnits.steel, 0);
       if (megacreditBalance > 0 && this.canUseSteel()) {
         this.steel = deductUnits(this.available.steel, this.thisPlayer.steelValue, true);
       }
 
-      this.available.titanium = Math.max(this.thisPlayer.titanium - this.card.reserveUnits.titanium, 0);
+      this.available.titanium = Math.max(this.thisPlayer.titanium - this.reserveUnits.titanium, 0);
       if (megacreditBalance > 0 && this.canUseTitanium()) {
         this.titanium = deductUnits(this.available.titanium, this.thisPlayer.titaniumValue, true);
       }
@@ -177,7 +179,7 @@ export default Vue.extend({
         this.titanium = deductUnits(this.available.titanium, this.thisPlayer.titaniumValue - 1, true);
       }
 
-      this.available.heat = Math.max(this.availableHeat() - this.card.reserveUnits.heat, 0);
+      this.available.heat = Math.max(this.availableHeat() - this.reserveUnits.heat, 0);
       if (megacreditBalance > 0 && this.canUseHeat()) {
         this.heat = deductUnits(this.available.heat, 1);
       }
@@ -262,7 +264,7 @@ export default Vue.extend({
       this.card = this.getCard();
       this.cost = this.card.calculatedCost || 0;
       this.tags = this.getCardTags();
-
+      this.reserveUnits = this.card.reserveUnits ?? Units.EMPTY;
       this.megaCredits = (this as unknown as typeof PaymentWidgetMixin.methods).getMegaCreditsMax();
 
       this.setDefaultValues();
@@ -270,17 +272,17 @@ export default Vue.extend({
     hasWarning(): boolean {
       return this.warning !== undefined;
     },
-    hasCardWarning(): boolean {
+    selectedCardHasWarning(): boolean {
       return this.card !== undefined && this.card.warning !== undefined;
     },
     showReserveSteelWarning(): boolean {
-      return this.card?.reserveUnits?.steel > 0 && this.canUseSteel();
+      return this.reserveUnits.steel > 0 && this.canUseSteel();
     },
     showReserveTitaniumWarning(): boolean {
-      return this.card?.reserveUnits?.titanium > 0 && (this.canUseTitanium() || this.canUseLunaTradeFederationTitanium());
+      return this.reserveUnits.titanium > 0 && (this.canUseTitanium() || this.canUseLunaTradeFederationTitanium());
     },
     showReserveHeatWarning(): boolean {
-      return this.card?.reserveUnits?.heat > 0 && this.canUseHeat();
+      return this.reserveUnits?.heat > 0 && this.canUseHeat();
     },
     saveData() {
       const payment: Payment = {
@@ -292,12 +294,12 @@ export default Vue.extend({
         floaters: this.floaters,
         science: this.science,
         seeds: this.seeds,
-        data: 0,
+        auroraiData: 0,
       };
       let totalSpent = 0;
-      for (const target of unit) {
+      for (const target of PAYMENT_KEYS) {
         if (payment[target] > this.getAmount(target)) {
-          this.$data.warning = `You do not have enough ${target}`;
+          this.warning = `You do not have enough ${target}`;
           return;
         }
         totalSpent += payment[target] * this.getResourceRate(target);
@@ -310,9 +312,9 @@ export default Vue.extend({
 
       if (totalSpent > this.cost) {
         const diff = totalSpent - this.cost;
-        for (const target of unit) {
+        for (const target of PAYMENT_KEYS) {
           if (payment[target] && diff >= this.getResourceRate(target)) {
-            this.$data.warning = `You cannot overspend ${target}`;
+            this.warning = `You cannot overspend ${target}`;
             return;
           }
         }
@@ -355,16 +357,16 @@ export default Vue.extend({
   </label>
 
   <section v-trim-whitespace>
-    <div v-if="hasCardWarning()" class="card-warning">{{ $t(card.warning) }}</div>
+    <div v-if="selectedCardHasWarning()" class="card-warning">{{ $t(card.warning) }}</div>
 
     <h3 class="payments_title" v-i18n>How to pay?</h3>
 
     <div class="payments_type input-group" v-if="canUseSteel()">
       <i class="resource_icon resource_icon--steel payments_type_icon" title="Pay by Steel"></i>
-      <Button type="minus" @click="reduceValue('steel', 1)" />
+      <AppButton type="minus" @click="reduceValue('steel', 1)" />
       <input class="form-input form-inline payments_input" v-model.number="steel" />
-      <Button type="plus" @click="addValue('steel', 1, available.steel)" />
-      <Button type="max" @click="setMaxValue('steel', available.steel)" title="MAX" />
+      <AppButton type="plus" @click="addValue('steel', 1, available.steel)" />
+      <AppButton type="max" @click="setMaxValue('steel', available.steel)" title="MAX" />
     </div>
     <div v-if="showReserveSteelWarning()" class="card-warning" v-i18n>
     (Some steel is unavailable here in reserve for the project card.)
@@ -372,10 +374,10 @@ export default Vue.extend({
 
     <div class="payments_type input-group" v-if="canUseTitanium() || canUseLunaTradeFederationTitanium()">
       <i class="resource_icon resource_icon--titanium payments_type_icon" :title="$t('Pay by Titanium')"></i>
-      <Button type="minus" @click="reduceValue('titanium', 1)" />
+      <AppButton type="minus" @click="reduceValue('titanium', 1)" />
       <input class="form-input form-inline payments_input" v-model.number="titanium" />
-      <Button type="plus" @click="addValue('titanium', 1, available.titanium)" />
-      <Button type="max" @click="setMaxValue('titanium', available.titanium)" title="MAX" />
+      <AppButton type="plus" @click="addValue('titanium', 1, available.titanium)" />
+      <AppButton type="max" @click="setMaxValue('titanium', available.titanium)" title="MAX" />
     </div>
     <div v-if="showReserveTitaniumWarning()" class="card-warning" v-i18n>
     (Some titanium is unavailable here in reserve for the project card.)
@@ -383,10 +385,10 @@ export default Vue.extend({
 
     <div class="payments_type input-group" v-if="canUseHeat()">
       <i class="resource_icon resource_icon--heat payments_type_icon" :title="$t('Pay by Heat')"></i>
-      <Button type="minus" @click="reduceValue('heat', 1)" />
+      <AppButton type="minus" @click="reduceValue('heat', 1)" />
       <input class="form-input form-inline payments_input" v-model.number="heat" />
-      <Button type="plus" @click="addValue('heat', 1, available.heat)" />
-      <Button type="max" @click="setMaxValue('heat', available.heat)" title="MAX" />
+      <AppButton type="plus" @click="addValue('heat', 1, available.heat)" />
+      <AppButton type="max" @click="setMaxValue('heat', available.heat)" title="MAX" />
     </div>
     <div v-if="showReserveHeatWarning()" class="card-warning" v-i18n>
     (Some heat is unavailable here in reserve for the project card.)
@@ -394,41 +396,41 @@ export default Vue.extend({
 
     <div class="payments_type input-group" v-if="canUseMicrobes()">
       <i class="resource_icon resource_icon--microbe payments_type_icon" :title="$t('Pay by Microbes')"></i>
-      <Button type="minus" @click="reduceValue('microbes', 1)" />
+      <AppButton type="minus" @click="reduceValue('microbes', 1)" />
       <input class="form-input form-inline payments_input" v-model.number="microbes" />
-      <Button type="plus" @click="addValue('microbes', 1)" />
-      <Button type="max" @click="setMaxValue('microbes')" title="MAX" />
+      <AppButton type="plus" @click="addValue('microbes', 1)" />
+      <AppButton type="max" @click="setMaxValue('microbes')" title="MAX" />
     </div>
 
     <div class="payments_type input-group" v-if="canUseFloaters()">
       <i class="resource_icon resource_icon--floater payments_type_icon" :title="$t('Pay by Floaters')"></i>
-      <Button type="minus" @click="reduceValue('floaters', 1)" />
+      <AppButton type="minus" @click="reduceValue('floaters', 1)" />
       <input class="form-input form-inline payments_input" v-model.number="floaters" />
-      <Button type="plus" @click="addValue('floaters', 1)" />
-      <Button type="max" @click="setMaxValue('floaters')" title="MAX" />
+      <AppButton type="plus" @click="addValue('floaters', 1)" />
+      <AppButton type="max" @click="setMaxValue('floaters')" title="MAX" />
     </div>
 
     <div class="payments_type input-group" v-if="canUseScience()">
       <i class="resource_icon resource_icon--science payments_type_icon" :title="$t('Pay by Science Resources')"></i>
-      <Button type="minus" @click="reduceValue('science', 1)" />
+      <AppButton type="minus" @click="reduceValue('science', 1)" />
       <input class="form-input form-inline payments_input" v-model.number="science" />
-      <Button type="plus" @click="addValue('science', 1)" />
-      <Button type="max" @click="setMaxValue('science')" title="MAX" />
+      <AppButton type="plus" @click="addValue('science', 1)" />
+      <AppButton type="max" @click="setMaxValue('science')" title="MAX" />
     </div>
 
     <div class="payments_type input-group" v-if="canUseSeeds()">
       <i class="resource_icon resource_icon--seed payments_type_icon" :title="$t('Pay by Seeds')"></i>
-      <Button type="minus" @click="reduceValue('seeds', 1)" />
+      <AppButton type="minus" @click="reduceValue('seeds', 1)" />
       <input class="form-input form-inline payments_input" v-model.number="seeds" />
-      <Button type="plus" @click="addValue('seeds', 1)" />
-      <Button type="max" @click="setMaxValue('seeds')" title="MAX" />
+      <AppButton type="plus" @click="addValue('seeds', 1)" />
+      <AppButton type="max" @click="setMaxValue('seeds')" title="MAX" />
     </div>
 
     <div class="payments_type input-group">
       <i class="resource_icon resource_icon--megacredits payments_type_icon" :title="$t('Pay by Megacredits')"></i>
-      <Button type="minus" @click="reduceValue('megaCredits', 1)" />
+      <AppButton type="minus" @click="reduceValue('megaCredits', 1)" />
       <input class="form-input form-inline payments_input" v-model.number="megaCredits" />
-      <Button type="plus" @click="addValue('megaCredits', 1)" />
+      <AppButton type="plus" @click="addValue('megaCredits', 1)" />
     </div>
 
     <div v-if="hasWarning()" class="tm-warning">
@@ -436,7 +438,7 @@ export default Vue.extend({
     </div>
 
     <div v-if="showsave === true" class="payments_save">
-      <Button size="big" @click="saveData" :title="playerinput.buttonLabel" data-test="save"/>
+      <AppButton size="big" @click="saveData" :title="playerinput.buttonLabel" data-test="save"/>
     </div>
   </section>
 </div>

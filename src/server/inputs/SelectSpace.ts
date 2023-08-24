@@ -1,16 +1,14 @@
 import {Message} from '../../common/logs/Message';
-import {PlayerInput} from '../PlayerInput';
-import {ISpace} from '../boards/ISpace';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
+import {BasePlayerInput, PlayerInput} from '../PlayerInput';
+import {Space} from '../boards/Space';
 import {InputResponse, isSelectSpaceResponse} from '../../common/inputs/InputResponse';
 
-export class SelectSpace implements PlayerInput {
-  public readonly inputType = PlayerInputType.SELECT_SPACE;
-  public buttonLabel: string = 'Save'; // not used (for now)
+export class SelectSpace extends BasePlayerInput {
   constructor(
-        public title: string | Message,
-        public availableSpaces: Array<ISpace>,
-        public cb: (space: ISpace) => PlayerInput | undefined) {
+    title: string | Message,
+    public availableSpaces: ReadonlyArray<Space>,
+    public cb: (space: Space) => PlayerInput | undefined) {
+    super('space', title);
     if (availableSpaces.length === 0) {
       throw new Error('No available spaces');
     }

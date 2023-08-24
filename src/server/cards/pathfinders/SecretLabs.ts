@@ -1,24 +1,25 @@
 import {IProjectCard} from '../IProjectCard';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
 import {Tag} from '../../../common/cards/Tag';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {OrOptions} from '../../inputs/OrOptions';
 import {SelectOption} from '../../inputs/SelectOption';
 import {PlaceOceanTile} from '../../deferredActions/PlaceOceanTile';
 import {AddResourcesToCard} from '../../deferredActions/AddResourcesToCard';
-import {Resources} from '../../../common/Resources';
+import {Resource} from '../../../common/Resource';
 import {CardResource} from '../../../common/CardResource';
 import {TRSource} from '../../../common/cards/TRSource';
 import {digit} from '../Options';
+import {MAX_OCEAN_TILES} from '../../../common/constants';
 
 export class SecretLabs extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.SECRET_LABS,
       cost: 21,
       tags: [Tag.JOVIAN, Tag.BUILDING, Tag.SPACE],
@@ -39,20 +40,22 @@ export class SecretLabs extends Card implements IProjectCard {
     });
   }
 
-  private canAfford(player: Player, tr: TRSource, megacrdits: number = this.cost): boolean {
+  private canAfford(player: IPlayer, tr: TRSource, megacrdits: number = this.cost): boolean {
     return player.canAfford(megacrdits, {steel: true, titanium: true, tr});
   }
 
-  public override bespokeCanPlay(player: Player) {
+  public override bespokeCanPlay(player: IPlayer) {
     return this.canAfford(player, {oceans: 1}) || this.canAfford(player, {temperature: 1}) || this.canAfford(player, {oxygen: 1});
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     const options = new OrOptions();
 
     if (this.canAfford(player, {oceans: 1}, 0)) {
-      options.options.push(new SelectOption('Place an ocean tile. Add 2 microbes to ANY card.', 'select', () => {
-        player.game.defer(new PlaceOceanTile(player));
+      const oceanPlacementAvailable = player.game.board.getOceanSpaces().length < MAX_OCEAN_TILES;
+      const optionTitle = oceanPlacementAvailable ? 'Place an ocean tile. Add 2 microbes to ANY card.': 'Add 2 microbes to ANY card.';
+      options.options.push(new SelectOption(optionTitle, 'select', () => {
+        if (oceanPlacementAvailable) player.game.defer(new PlaceOceanTile(player));
         player.game.defer(new AddResourcesToCard(player, CardResource.MICROBE, {count: 2}));
         return undefined;
       }));
@@ -60,7 +63,7 @@ export class SecretLabs extends Card implements IProjectCard {
     if (this.canAfford(player, {temperature: 1}, 0)) {
       options.options.push(new SelectOption('Raise temperature 1 step. Gain 3 plants.', 'select', () => {
         player.game.increaseTemperature(player, 1);
-        player.addResource(Resources.PLANTS, 3, {log: true});
+        player.stock.add(Resource.PLANTS, 3, {log: true});
         return undefined;
       }));
     }

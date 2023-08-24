@@ -1,10 +1,10 @@
 import {Tag} from '../../../common/cards/Tag';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Card} from '../Card';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {PartyName} from '../../../common/turmoil/PartyName';
 import {CardRenderDynamicVictoryPoints} from '../render/CardRenderDynamicVictoryPoints';
 import {TileType} from '../../../common/TileType';
@@ -16,7 +16,7 @@ import {IProjectCard} from '../IProjectCard';
 export class RedCity extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.RED_CITY,
       tags: [Tag.CITY, Tag.BUILDING],
       cost: 21,
@@ -36,29 +36,29 @@ export class RedCity extends Card implements IProjectCard {
         description: 'Requires that Reds are ruling or that you have 2 delegates there. ' +
           '-1 energy prod, +2 M€ prod. ' +
           'Place the special tile on Mars ADJACENT TO NO GREENERY. ' +
-          'NO GREENERY MAY BE PLACED NEXT TO THIS TILE. 1 VP for every empty space next to this tile (Ares hazards don\'t count.)',
+          'NO GREENERY MAY BE PLACED NEXT TO THIS TILE. 1 VP for every empty space (or hazard) next to this tile.',
         victoryPoints: CardRenderDynamicVictoryPoints.questionmark(),
       },
     });
   }
 
-  private availableRedCitySpaces(player: Player) {
+  private availableRedCitySpaces(player: IPlayer) {
     const board = player.game.board;
     const citySpaces = board.getAvailableSpacesForCity(player);
     return citySpaces.filter((space) => !board.getAdjacentSpaces(space).some(Board.isGreenerySpace));
   }
-  public override bespokeCanPlay(player: Player) {
+  public override bespokeCanPlay(player: IPlayer) {
     return this.availableRedCitySpaces(player).length > 0;
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     return new SelectSpace('Select space for Red City', this.availableRedCitySpaces(player), (space) => {
       player.game.addTile(player, space, {tileType: TileType.RED_CITY, card: this.name});
       return undefined;
     });
   }
 
-  public override getVictoryPoints(player: Player): number {
+  public override getVictoryPoints(player: IPlayer): number {
     const space = player.game.board.getSpaceByTileCard(this.name);
     if (space === undefined) {
       return 0;

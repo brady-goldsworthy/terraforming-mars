@@ -36,9 +36,12 @@ describe('ApiGame', () => {
     scaffolding.url = '/api/game?id=game-valid-id';
     await scaffolding.get(ApiGame.INSTANCE, res);
     // This test is probably brittle.
-    expect(JSON.parse(res.content)).deep.eq(
+    const json = JSON.parse(res.content);
+    json.expectedPurgeTimeMs = -1;
+    expect(json).deep.eq(
       {
         'activePlayer': 'black',
+        'expectedPurgeTimeMs': -1,
         'id': 'game-valid-id',
         'lastSoloGeneration': 14,
         'phase': 'research',
@@ -54,15 +57,16 @@ describe('ApiGame', () => {
           'aresExtension': false,
           'boardName': 'tharsis',
           'bannedCards': [],
+          'ceoExtension': false,
           'coloniesExtension': false,
           'communityCardsOption': false,
           'corporateEra': true,
           'draftVariant': false,
-          'corporationsDraft': false,
           'escapeVelocityMode': false,
           'escapeVelocityPenalty': 1,
           'escapeVelocityPeriod': 2,
           'escapeVelocityThreshold': 30,
+          'escapeVelocityBonusSeconds': 2,
           'fastModeOption': false,
           'includeFanMA': false,
           'includeVenusMA': true,

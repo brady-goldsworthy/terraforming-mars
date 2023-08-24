@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {getTestPlayer, newTestGame} from '../../TestGame';
+import {testGame} from '../../TestGame';
 import {SurveyMission} from '../../../src/server/cards/pathfinders/SurveyMission';
 import {Game} from '../../../src/server/Game';
 import {TestPlayer} from '../../TestPlayer';
@@ -7,13 +7,13 @@ import {cast, runAllActions} from '../../TestingUtils';
 import {EmptyBoard} from '../../ares/EmptyBoard';
 import {SpaceType} from '../../../src/common/boards/SpaceType';
 import {TileType} from '../../../src/common/TileType';
-import {ISpace} from '../../../src/server/boards/ISpace';
+import {Space} from '../../../src/server/boards/Space';
 import {SelectSpace} from '../../../src/server/inputs/SelectSpace';
 import {MiningGuild} from '../../../src/server/cards/corporation/MiningGuild';
 import {SpaceBonus} from '../../../src/common/boards/SpaceBonus';
 import {Units} from '../../../src/common/Units';
 
-function toSpaceIdDigit(space: ISpace) {
+function toSpaceIdDigit(space: Space) {
   return parseInt(space.id);
 }
 
@@ -34,8 +34,7 @@ describe('SurveyMission', () => {
 
   beforeEach(function() {
     card = new SurveyMission();
-    game = newTestGame(1, {pathfindersExpansion: true});
-    player = getTestPlayer(game, 0);
+    [game, player] = testGame(1, {pathfindersExpansion: true});
     board = EmptyBoard.newInstance();
     const availableSpaces = [
       '03', '04', '05',

@@ -2,15 +2,15 @@ import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardName} from '../../../common/cards/CardName';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 
 export class NitrophilicMoss extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.NITROPHILIC_MOSS,
       tags: [Tag.PLANT],
       cost: 8,
@@ -32,13 +32,13 @@ export class NitrophilicMoss extends Card implements IProjectCard {
     });
   }
 
-  public override bespokeCanPlay(player: Player): boolean {
+  public override bespokeCanPlay(player: IPlayer): boolean {
     const viralEnhancers = player.playedCards.find((card) => card.name === CardName.VIRAL_ENHANCERS);
     const hasEnoughPlants = player.plants >= 2 || player.isCorporation(CardName.MANUTECH) || player.plants >= 1 && viralEnhancers !== undefined;
 
     return hasEnoughPlants;
   }
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     player.plants -= 2;
     return undefined;
   }

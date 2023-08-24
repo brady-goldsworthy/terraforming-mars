@@ -2,7 +2,6 @@ import {mount} from '@vue/test-utils';
 import {getLocalVue} from './getLocalVue';
 import {expect} from 'chai';
 import {CardName} from '@/common/cards/CardName';
-import {CardType} from '@/common/cards/CardType';
 import SelectProjectCardToPlay from '@/client/components/SelectProjectCardToPlay.vue';
 import {PlayerInputModel} from '@/common/models/PlayerInputModel';
 import {PlayerViewModel, PublicPlayerModel} from '@/common/models/PlayerModel';
@@ -589,7 +588,7 @@ describe('SelectProjectCardToPlay', () => {
     cardCost: number,
     playerFields: Partial<PublicPlayerModel>,
     playerInputFields: Partial<PlayerInputModel>,
-    reserveUnits: Units = Units.EMPTY) {
+    reserveUnits: Units | undefined = undefined) {
     const thisPlayer: Partial<PublicPlayerModel> = Object.assign({
       cards: [{name: cardName, calculatedCost: cardCost}],
       steel: 0,
@@ -608,12 +607,12 @@ describe('SelectProjectCardToPlay', () => {
       cards: [{
         name: cardName,
         resources: undefined,
-        cardType: CardType.ACTIVE,
-        isDisabled: false,
-        reserveUnits: reserveUnits,
         calculatedCost: cardCost,
       }],
     };
+    if (reserveUnits !== undefined) {
+      playerInput.cards![0].reserveUnits = reserveUnits;
+    }
     Object.assign(playerInput, playerInputFields);
 
     return mount(SelectProjectCardToPlay, {

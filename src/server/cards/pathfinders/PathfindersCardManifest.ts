@@ -21,6 +21,7 @@ import {CollegiumCopernicus} from './CollegiumCopernicus';
 import {CommunicationCenter} from './CommunicationCenter';
 import {ControlledBloom} from './ControlledBloom';
 import {CoordinatedRaid} from './CoordinatedRaid';
+import {Crashlanding} from './Crashlanding';
 import {CrewTraining} from './CrewTraining';
 import {Cryptocurrency} from './Cryptocurrency';
 import {CultivationOfVenus} from './CultivationOfVenus';
@@ -39,6 +40,7 @@ import {ExpeditionToTheSurfaceVenus} from './ExpeditionToTheSurfaceVenus';
 import {ExperiencedMartians} from './ExperiencedMartians';
 import {FlatMarsTheory} from './FlatMarsTheory';
 import {FloaterUrbanism} from './FloaterUrbanism';
+import {GagarinMobileBase} from './GagarinMobileBase';
 import {GeologicalExpedition} from './GeologicalExpedition';
 import {HabitatMarte} from './HabitatMarte';
 import {HighTempSuperconductors} from './HighTempSuperconductors';
@@ -52,6 +54,7 @@ import {LobbyHalls} from './LobbyHalls';
 import {LunarEmbassy} from './LunarEmbassy';
 import {LuxuryEstate} from './LuxuryEstate';
 import {MarsDirect} from './MarsDirect';
+import {MarsMaths} from './MarsMaths';
 import {MartianCulture} from './MartianCulture';
 import {MartianDustProcessingPlant} from './MartianDustProcessingPlant';
 import {MartianInsuranceGroup} from './MartianInsuranceGroup';
@@ -88,6 +91,7 @@ import {SocialEvents} from './SocialEvents';
 import {SoilDetoxification} from './SoilDetoxification';
 import {Solarpedia} from './Solarpedia';
 import {SolarStorm} from './SolarStorm';
+import {SolBank} from './SolBank';
 import {SoylentSeedlingSystems} from './SoylentSeedlingSystems';
 import {SpaceDebrisCleaningOperation} from './SpaceDebrisCleaningOperation';
 import {SpaceRelay} from './SpaceRelay';
@@ -98,6 +102,7 @@ import {SurveyMission} from './SurveyMission';
 import {TerraformingControlStation} from './TerraformingControlStation';
 import {TerraformingRobots} from './TerraformingRobots';
 import {TheNewSpaceRace} from './TheNewSpaceRace';
+import {ThinkTank} from './ThinkTank';
 import {ValuableGases} from './ValuableGases';
 import {VeneraBase} from './VeneraBase';
 import {VenusFirst} from './VenusFirst';
@@ -154,8 +159,8 @@ export const PATHFINDERS_CARD_MANIFEST = new ModuleManifest({
     [CardName.CULTIVATION_OF_VENUS]: {Factory: CultivationOfVenus, compatibility: 'venus'},
     [CardName.EXPEDITION_TO_THE_SURFACE_VENUS]: {Factory: ExpeditionToTheSurfaceVenus, compatibility: 'venus'},
     [CardName.LAST_RESORT_INGENUITY]: {Factory: LastResortIngenuity},
-    // // [CardName.CRASHLANDING]: {Factory: Crashlanding},                             // COMPLICATED ADJACENCY BONUS RULES
-    // // [CardName.THINK_TANK]: {Factory: ThinkTank},                                  // COMPLICATED REQUIREMENT RULES
+    [CardName.CRASHLANDING]: {Factory: Crashlanding, compatibility: 'ares'},
+    [CardName.THINK_TANK]: {Factory: ThinkTank},
     [CardName.BOTANICAL_EXPERIENCE]: {Factory: BotanicalExperience},
     [CardName.CRYPTOCURRENCY]: {Factory: Cryptocurrency},
     [CardName.RICH_DEPOSITS]: {Factory: RichDeposits},
@@ -194,16 +199,16 @@ export const PATHFINDERS_CARD_MANIFEST = new ModuleManifest({
     // [CardName.SPIRE]: {Factory: Spire},
     [CardName.SOYLENT_SEEDLING_SYSTEMS]: {Factory: SoylentSeedlingSystems},
     [CardName.STEELARIS]: {Factory: Steelaris},
-    // [CardName.MARS_MATHS]: {Factory: MarsMaths},
+    [CardName.MARS_MATHS]: {Factory: MarsMaths},
     [CardName.MARS_DIRECT]: {Factory: MarsDirect, compatibility: 'pathfinders'},
     [CardName.MARTIAN_INSURANCE_GROUP]: {Factory: MartianInsuranceGroup, compatibility: 'pathfinders'},
-    // [CardName.SOLBANK]: {Factory: SolBank},
+    [CardName.SOLBANK]: {Factory: SolBank},
     [CardName.BIO_SOL]: {Factory: BioSol},
     [CardName.AURORAI]: {Factory: Aurorai, compatibility: 'pathfinders'},
     [CardName.COLLEGIUM_COPERNICUS]: {Factory: CollegiumCopernicus, compatibility: 'colonies'},
     [CardName.ROBIN_HAULINGS]: {Factory: RobinHaulings, compatibility: ['venus', 'pathfinders']},
     [CardName.ODYSSEY]: {Factory: Odyssey},
-    // [CardName.GAGARIN_MOBILE_BASE]: {Factory: GagarinMobileBase},
+    [CardName.GAGARIN_MOBILE_BASE]: {Factory: GagarinMobileBase},
     // [CardName.MARS_FRONTIER_ALLIANCE]: {Factory: MarsFrontierAlliance},
     [CardName.MIND_SET_MARS]: {Factory: MindSetMars, compatibility: 'turmoil'},
     [CardName.HABITAT_MARTE]: {Factory: HabitatMarte, compatibility: 'pathfinders'},

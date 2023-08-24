@@ -1,5 +1,5 @@
 import {IProjectCard} from '../IProjectCard';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
@@ -11,7 +11,7 @@ import {ICloneTagCard} from './ICloneTagCard';
 export class LobbyHalls extends Card implements IProjectCard, ICloneTagCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.LOBBY_HALLS,
       cost: 11,
 
@@ -25,8 +25,8 @@ export class LobbyHalls extends Card implements IProjectCard, ICloneTagCard {
         renderData: CardRenderer.builder((b) => {
           b.production((pb) => pb.megacredits(2)).delegates(1);
         }),
-        // TODO(kberg): remove "from reserve" like Cultural Metropolis.
-        description: 'Increase your M€ production 2 steps. Place 1 delegate from reserve in any party.',
+        description: 'Increase your M€ production 2 steps. Place 1 delegate in any party.' +
+                     ' Choose a planet tag. This card counts as having 1 of that tag. Raise the corresponding planetary track 1 step.',
       },
     });
   }
@@ -37,7 +37,7 @@ export class LobbyHalls extends Card implements IProjectCard, ICloneTagCard {
     return [this.cloneTag, Tag.BUILDING];
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     player.game.defer(new DeclareCloneTag(player, this));
     return undefined;
   }

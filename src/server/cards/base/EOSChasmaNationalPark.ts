@@ -4,13 +4,13 @@ import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {CardResource} from '../../../common/CardResource';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 
 export class EosChasmaNationalPark extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.EOS_CHASMA_NATIONAL_PARK,
       tags: [Tag.PLANT, Tag.BUILDING],
       cost: 16,

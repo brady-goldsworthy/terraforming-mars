@@ -1,7 +1,7 @@
 import {IProjectCard} from '../IProjectCard';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {SelectCard} from '../../inputs/SelectCard';
 import {CardName} from '../../../common/cards/CardName';
 import {LogHelper} from '../../LogHelper';
@@ -12,7 +12,7 @@ import {RobotCard} from '../promo/SelfReplicatingRobots';
 export class CEOsFavoriteProject extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.EVENT,
+      type: CardType.EVENT,
       name: CardName.CEOS_FAVORITE_PROJECT,
       cost: 1,
 
@@ -22,12 +22,12 @@ export class CEOsFavoriteProject extends Card implements IProjectCard {
       },
     });
   }
-  public override bespokeCanPlay(player: Player): boolean {
+  public override bespokeCanPlay(player: IPlayer): boolean {
     return player.getCardsWithResources().length > 0 ||
            player.getSelfReplicatingRobotsTargetCards().length > 0;
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     const cards = player.getCardsWithResources();
     const robotCards = player.getSelfReplicatingRobotsTargetCards();
     return new SelectCard(

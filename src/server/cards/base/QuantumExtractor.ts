@@ -3,14 +3,14 @@ import {Tag} from '../../../common/cards/Tag';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 import {digit, played} from '../Options';
 
 export class QuantumExtractor extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.QUANTUM_EXTRACTOR,
       tags: [Tag.SCIENCE, Tag.POWER],
       cost: 13,

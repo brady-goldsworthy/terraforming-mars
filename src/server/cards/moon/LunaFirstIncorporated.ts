@@ -1,5 +1,5 @@
 import {CardName} from '../../../common/cards/CardName';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardType} from '../../../common/cards/CardType';
 import {Tag} from '../../../common/cards/Tag';
 import {ICorporationCard} from '../corporation/ICorporationCard';
@@ -12,20 +12,23 @@ import {all} from '../Options';
 export class LunaFirstIncorporated extends Card implements ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.LUNA_FIRST_INCORPORATED,
       tags: [Tag.MOON],
       startingMegaCredits: 40,
 
       behavior: {
-        stock: {steel: 2, titanium: 2},
+        // stock: {steel: 2, titanium: 2},
+        stock: {steel: 1, titanium: 1},
       },
 
       metadata: {
-        description: 'You start with 40 M€, 2 steel, and 2 titanium.',
+        // description: 'You start with 40 M€, 2 steel, and 2 titanium.',
+        description: 'You start with 40 M€, 1 steel, and 1 titanium.',
         cardNumber: '',
         renderData: CardRenderer.builder((b) => {
-          b.megacredits(40).steel(2).titanium(2).br;
+          // b.megacredits(40).steel(2).titanium(2).br;
+          b.megacredits(40).steel(1).titanium(1).br;
           b.effect('When you raise any Moon Rate, increase your M€ production 1 step per step.', (eb) => {
             eb.moonHabitatRate({size: Size.SMALL}).slash()
               .moonMiningRate({size: Size.SMALL}).slash()
@@ -43,7 +46,7 @@ export class LunaFirstIncorporated extends Card implements ICorporationCard {
     });
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     MoonExpansion.moonData(player.game).lunaFirstPlayer = player;
     return undefined;
   }

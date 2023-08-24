@@ -4,13 +4,13 @@ import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {played} from '../Options';
 
 export class Shuttles extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.SHUTTLES,
       tags: [Tag.SPACE],
       cost: 10,

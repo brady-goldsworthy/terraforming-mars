@@ -1,28 +1,45 @@
-import {PlayerInput} from '../PlayerInput';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
+import {BasePlayerInput} from '../PlayerInput';
 import {isPayment, Payment} from '../../common/inputs/Payment';
-import {IProjectCard} from '../cards/IProjectCard';
+import {IProjectCard, PlayableCard} from '../cards/IProjectCard';
 import {Units} from '../../common/Units';
 import {MoonExpansion} from '../moon/MoonExpansion';
-import {CardAction, Player} from '../Player';
+import {CardAction, IPlayer} from '../IPlayer';
 import {InputResponse, isSelectProjectCardToPlayResponse} from '../../common/inputs/InputResponse';
+import {CardName} from '../../common/cards/CardName';
+import {CanPlayResponse} from '../cards/IProjectCard';
+import {YesAnd} from '../cards/requirements/CardRequirement';
 
-export class SelectProjectCardToPlay implements PlayerInput {
-  public readonly inputType = PlayerInputType.SELECT_PROJECT_CARD_TO_PLAY;
-  public title = 'Play project card';
-  public buttonLabel: string = 'Play card';
-  public reserveUnits: Array<Units>;
+export type PlayCardMetadata = {
+  reserveUnits: Readonly<Units>;
+  details: CanPlayResponse | undefined;
+};
+
+export class SelectProjectCardToPlay extends BasePlayerInput {
+  public cards: Array<IProjectCard> = [];
+  public extras: Map<CardName, PlayCardMetadata>;
 
   constructor(
-    private player: Player,
-    public cards: Array<IProjectCard> = player.getPlayableCards(),
+    private player: IPlayer,
+    cards: Array<PlayableCard> = player.getPlayableCards(),
     public config?: {
       action?: CardAction,
       cb?: (cardToPlay: IProjectCard) => void,
     }) {
-    this.reserveUnits = this.cards.map((card) => {
-      return card.reserveUnits ? MoonExpansion.adjustedReserveCosts(player, card) : Units.EMPTY;
-    });
+    super('projectCard', 'Play project card');
+    this.buttonLabel = 'Play card';
+    this.cards = cards.map((card) => card.card);
+    this.extras = new Map(
+      cards.map((card) => {
+        return [
+          card.card.name,
+          {
+            reserveUnits: card.card.reserveUnits ?
+              MoonExpansion.adjustedReserveCosts(player, card.card) :
+              Units.EMPTY,
+            details: card.details,
+          },
+        ];
+      }));
   }
 
   public process(input: InputResponse) {
@@ -32,24 +49,43 @@ export class SelectProjectCardToPlay implements PlayerInput {
     if (!isPayment(input.payment)) {
       throw new Error('payment is not a valid type');
     }
-    const cardData = PlayerInput.getCard(this.cards, input.card);
-    const card: IProjectCard = cardData.card;
-    const reserveUnits = this.reserveUnits[cardData.idx];
+
+    const card = this.cards.find((card) => card.name === input.card);
+    if (card === undefined) {
+      throw new Error('Unknown card name ' + input.card);
+    }
+    const details = this.extras.get(input.card);
+    if (details === undefined) {
+      throw new Error('Unknown card name ' + input.card);
+    }
     // These are not used for safety but do help give a better error message
     // to the user
+    const reserveUnits = details.reserveUnits;
     if (reserveUnits.steel + input.payment.steel > this.player.steel) {
       throw new Error(`${reserveUnits.steel} units of steel must be reserved for ${input.card}`);
     }
     if (reserveUnits.titanium + input.payment.titanium > this.player.titanium) {
       throw new Error(`${reserveUnits.titanium} units of titanium must be reserved for ${input.card}`);
     }
-    this.cb(card, input.payment);
+    const yesAnd = typeof(details.details) === 'boolean' ? undefined : details.details;
+    this.payAndPlay(card, input.payment, yesAnd);
     return undefined;
   }
 
-  // To fullfil PlayerInput.
-  public cb(card: IProjectCard, payment: Payment) {
+  public payAndPlay(card: IProjectCard, payment: Payment, yesAnd?: YesAnd) {
     this.player.checkPaymentAndPlayCard(card, payment, this.config?.action);
+    if ((yesAnd?.thinkTankResources ?? 0) > 0) {
+      const thinkTank = this.player.tableau.find((card) => card.name === CardName.THINK_TANK);
+      // TODO(kberg): this processing ought to be done while paying for the card.
+      if (thinkTank !== undefined) {
+        this.player.removeResourceFrom(thinkTank, yesAnd?.thinkTankResources, {log: true});
+      }
+    }
+    this.cb(card);
+  }
+
+  // To fullfil PlayerInput.
+  public cb(card: IProjectCard) {
     this.config?.cb?.(card);
     return undefined;
   }

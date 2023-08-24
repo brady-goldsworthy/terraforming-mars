@@ -1,10 +1,10 @@
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {PreludeCard} from '../prelude/PreludeCard';
 import {IProjectCard} from '../IProjectCard';
 import {CardName} from '../../../common/cards/CardName';
 import {SendDelegateToArea} from '../../deferredActions/SendDelegateToArea';
 import {CardRenderer} from '../render/CardRenderer';
-import {Resources} from '../../../common/Resources';
+import {Resource} from '../../../common/Resource';
 import {Turmoil} from '../../turmoil/Turmoil';
 import {SimpleDeferredAction} from '../../deferredActions/DeferredAction';
 import {OrOptions} from '../../inputs/OrOptions';
@@ -28,8 +28,8 @@ export class ExecutiveOrder extends PreludeCard implements IProjectCard {
     });
   }
 
-  public override bespokePlay(player: Player) {
-    player.addResource(Resources.MEGACREDITS, 10, {log: true});
+  public override bespokePlay(player: IPlayer) {
+    player.stock.add(Resource.MEGACREDITS, 10, {log: true});
     const turmoil = Turmoil.getTurmoil(player.game);
     const globalEvents: IGlobalEvent[] = [];
 
@@ -43,7 +43,7 @@ export class ExecutiveOrder extends PreludeCard implements IProjectCard {
     player.game.defer(new SimpleDeferredAction(player, () => {
       return new OrOptions(
         ...globalEvents.map((event) => {
-          // TODO: Render as SelectGlobalEvent
+          // TODO(kberg): Render as SelectGlobalEvent
           const description = event.name + ': ' + event.description + ' Neutral delegate added: ' + event.currentDelegate;
           return new SelectOption(description, 'Select', () => {
             turmoil.currentGlobalEvent = event;

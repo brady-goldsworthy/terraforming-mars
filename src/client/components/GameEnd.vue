@@ -7,7 +7,7 @@
                   <div class="game_end_success">
                       <h2 v-i18n>You win!</h2>
                       <div class="game_end_solo_img">
-                          <img src="/assets/solo_win.png" />
+                          <img src="assets/solo_win.png" />
                       </div>
                       <div class="game_end_notice">
                         <span v-i18n>But it isn't the reason to stop making Mars better.</span>
@@ -35,11 +35,18 @@
                   </div>
               </div>
           </div>
-          <div class="game_end_go_home">
-              <a href="/">
-                  <Button size="big" type="back" />
-                  <span  v-i18n>Go to main page</span>
+          <div class="game_end_navigation">
+            <div>
+              <a href="new-game">
+                  <AppButton size="big" type="back" />
+                  <span v-i18n>Create New Game</span>
               </a>
+
+              <a href=".">
+                  <AppButton size="big" type="back" />
+                  <span v-i18n>Go to main page</span>
+              </a>
+            </div>
           </div>
           <div v-if="!isSoloGame() || game.isSoloModeWin" class="game-end-winer-announcement">
               <span v-for="p in getWinners()" :key="p.color"><span :class="'log-player ' + getEndGamePlayerRowColorClass(p.color)">{{ p.name }}</span></span> <span v-i18n>won!</span>
@@ -58,6 +65,7 @@
                           <th v-if="game.moon !== undefined"><div class="table-moon-road-tile"></div></th>
                           <th v-if="game.moon !== undefined"><div class="table-moon-colony-tile"></div></th>
                           <th v-if="game.moon !== undefined"><div class="table-moon-mine-tile"></div></th>
+                          <th v-if="game.pathfinders !== undefined"><div class="table-planetary-track"></div></th>
                           <th><div class="vp">VP</div></th>
                           <th v-if="game.gameOptions.escapeVelocityMode" class="clock-icon tooltip tooltip-top" :data-tooltip="$t('Escape Velocity penalty')">&#x23F3;</th>
                           <th class="game-end-total"><div class="game-end-total-column">Total</div></th>
@@ -69,8 +77,10 @@
                   <tbody>
                       <tr v-for="p in getSortedPlayers()" :key="p.color" :class="getEndGamePlayerRowColorClass(p.color)">
                           <td>
-                            <a :href="'/player?id='+p.id+'&noredirect'">{{ p.name }}</a>
-                            <div class="column-corporation"><span v-i18n>{{ getCorporationName(p) }}</span></div>
+                            <a :href="'player?id='+p.id+'&noredirect'">{{ p.name }}</a>
+                            <div class="column-corporation">
+                              <div v-for="(corporationName, index) in getCorporationName(p)" :key="index" v-i18n>{{ corporationName }}</div>
+                            </div>
                           </td>
                           <td>{{ p.victoryPointsBreakdown.terraformRating }}</td>
                           <td>{{ p.victoryPointsBreakdown.milestones }}</td>
@@ -80,6 +90,7 @@
                           <td v-if="game.moon !== undefined">{{ p.victoryPointsBreakdown.moonRoads }}</td>
                           <td v-if="game.moon !== undefined">{{ p.victoryPointsBreakdown.moonHabitats }}</td>
                           <td v-if="game.moon !== undefined">{{ p.victoryPointsBreakdown.moonMines }}</td>
+                          <td v-if="game.pathfinders !== undefined"> {{ p.victoryPointsBreakdown.planetaryTracks}}</td>
                           <td>{{ p.victoryPointsBreakdown.victoryPoints }}</td>
                           <td v-if="game.gameOptions.escapeVelocityMode">{{ p.victoryPointsBreakdown.escapeVelocity }}</td>
                           <td class="game-end-total">{{ p.victoryPointsBreakdown.total }}</td>
@@ -99,7 +110,7 @@
               <div class="game-end-flexrow">
                   <div v-for="p in getSortedPlayers()" :key="p.color" class="game-end-column">
                       <div class="game-end-winer-scorebreak-player-title">
-                          <div :class="'game-end-player ' + getEndGamePlayerRowColorClass(p.color)"><a :href="'/player?id='+p.id+'&noredirect'">{{p.name}}</a></div>
+                          <div :class="'game-end-player ' + getEndGamePlayerRowColorClass(p.color)"><a :href="'player?id='+p.id+'&noredirect'">{{p.name}}</a></div>
                       </div>
                       <div v-for="v in p.victoryPointsBreakdown.detailsCards" :key="v.cardName">
                         <div class="game-end-column-row">
@@ -166,20 +177,21 @@
 
 import Vue from 'vue';
 import * as constants from '@/common/constants';
-import * as paths from '@/common/app/paths';
+import {paths} from '@/common/app/paths';
 import {GameModel} from '@/common/models/GameModel';
 import {PlayerViewModel, PublicPlayerModel, ViewModel} from '@/common/models/PlayerModel';
 import Board from '@/client/components/Board.vue';
 import MoonBoard from '@/client/components/moon/MoonBoard.vue';
 import PlanetaryTracks from '@/client/components/pathfinders/PlanetaryTracks.vue';
 import LogPanel from '@/client/components/LogPanel.vue';
-import Button from '@/client/components/common/Button.vue';
+import AppButton from '@/client/components/common/AppButton.vue';
 import VictoryPointChart from '@/client/components/gameend/VictoryPointChart.vue';
 import {playerColorClass} from '@/common/utils/utils';
 import {Timer} from '@/common/Timer';
 import {SpectatorModel} from '@/common/models/SpectatorModel';
 import {Color} from '@/common/Color';
 import {CardType} from '@/common/cards/CardType';
+import {getCard} from '../cards/ClientCardManifest';
 
 function getViewModel(playerView: ViewModel | undefined, spectator: ViewModel | undefined): ViewModel {
   if (playerView !== undefined) return playerView;
@@ -228,7 +240,7 @@ export default Vue.extend({
   components: {
     'board': Board,
     'log-panel': LogPanel,
-    Button,
+    AppButton,
     MoonBoard,
     PlanetaryTracks,
     VictoryPointChart,
@@ -266,9 +278,12 @@ export default Vue.extend({
     isSoloGame(): boolean {
       return this.players.length === 1;
     },
-    getCorporationName(p: PublicPlayerModel): string {
-      const firstCard = p.tableau[0];
-      return firstCard.cardType === CardType.CORPORATION ? firstCard.name : '';
+    getCorporationName(p: PublicPlayerModel): string[] {
+      const cards = p.tableau;
+      const corporationCards = cards
+        .filter((card) => getCard(card.name)?.type === CardType.CORPORATION)
+        .map((card) => card.name);
+      return corporationCards.length === 0 ? [''] : corporationCards;
     },
   },
 });

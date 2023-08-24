@@ -1,4 +1,4 @@
-import {Player} from '../Player';
+import {IPlayer} from '../IPlayer';
 import {PlayerInput} from '../PlayerInput';
 
 export enum Priority {
@@ -13,7 +13,7 @@ export enum Priority {
 
   /** When you must discard before you can draw. Making a determination that Sponsored Academies should come before Mars U. */
   SPONSORED_ACADEMIES,
-  /** When you must discard before you can draw. Mars U */
+  /** When you must discard before you can draw. Mars U, Ender (CEO). */
   DISCARD_AND_DRAW,
   DRAW_CARDS,
   BUILD_COLONY,
@@ -34,11 +34,11 @@ export enum Priority {
 export abstract class DeferredAction {
   public queueId: number = -1;
   constructor(
-    public player: Player,
+    public player: IPlayer,
     public priority: Priority = Priority.DEFAULT,
   ) {}
 
-  public static create(player: Player, priority: Priority, execute: () => PlayerInput | undefined): DeferredAction {
+  public static create(player: IPlayer, priority: Priority, execute: () => PlayerInput | undefined): DeferredAction {
     return new SimpleDeferredAction(player, execute, priority);
   }
 
@@ -47,7 +47,7 @@ export abstract class DeferredAction {
 
 export class SimpleDeferredAction extends DeferredAction {
   constructor(
-    player: Player,
+    player: IPlayer,
     public execute: () => PlayerInput | undefined,
     priority?: Priority,
   ) {

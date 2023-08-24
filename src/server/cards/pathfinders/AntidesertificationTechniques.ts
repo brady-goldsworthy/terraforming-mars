@@ -1,18 +1,18 @@
-import {Player} from '../../Player';
 import {PreludeCard} from '../prelude/PreludeCard';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
-import {Resources} from '../../../common/Resources';
+import {Tag} from '../../../common/cards/Tag';
 
 export class AntidesertificationTechniques extends PreludeCard {
   constructor() {
     super({
       name: CardName.ANTI_DESERTIFICATION_TECHNIQUES,
+      tags: [Tag.MICROBE, Tag.PLANT],
 
       behavior: {
         production: {plants: 1, steel: 1},
+        stock: {megacredits: 5},
       },
-      startingMegacredits: 5,
 
       metadata: {
         cardNumber: 'P08',
@@ -23,10 +23,6 @@ export class AntidesertificationTechniques extends PreludeCard {
         description: 'Gain 5 M€. Increase your plant production 1 step and your steel production 1 step.',
       },
     });
-  }
-  public override bespokePlay(player: Player) {
-    player.addResource(Resources.MEGACREDITS, 5);
-    return undefined;
   }
 }
 

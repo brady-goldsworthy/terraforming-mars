@@ -1,8 +1,8 @@
 import {IProjectCard} from '../IProjectCard';
 import {CardName} from '../../../common/cards/CardName';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
-import {CardRequirements} from '../CardRequirements';
+import {IPlayer} from '../../IPlayer';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 import {Card} from '../Card';
 import {all} from '../Options';
@@ -11,7 +11,7 @@ import {Board} from '../../boards/Board';
 export class OutdoorSports extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.OUTDOOR_SPORTS,
       cost: 8,
       victoryPoints: 1,
@@ -33,7 +33,7 @@ export class OutdoorSports extends Card implements IProjectCard {
     });
   }
 
-  public override bespokeCanPlay(player: Player) {
+  public override bespokeCanPlay(player: IPlayer) {
     const board = player.game.board;
     const oceans = board.getOceanSpaces({upgradedOceans: true, wetlands: true} );
     return oceans.some((ocean) => board.getAdjacentSpaces(ocean).some((space) => Board.isCitySpace(space)));

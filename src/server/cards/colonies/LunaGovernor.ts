@@ -4,7 +4,7 @@ import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {Card} from '../Card';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 
 export class LunaGovernor extends Card implements IProjectCard {
   constructor() {
@@ -12,7 +12,7 @@ export class LunaGovernor extends Card implements IProjectCard {
       cost: 4,
       tags: [Tag.EARTH, Tag.EARTH],
       name: CardName.LUNA_GOVERNOR,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
 
       behavior: {
         production: {megacredits: 2},

@@ -1,12 +1,12 @@
 import {CardName} from '../../../common/cards/CardName';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {IAward} from '../IAward';
 
 export class Warmonger implements IAward {
   public readonly name = 'Warmonger';
-  public readonly description = 'Most cards that reduce other players\' resources or production';
+  public readonly description = 'Play the most cards that reduce other players\' resources or production';
 
-  public getScore(player: Player): number {
+  public getScore(player: IPlayer): number {
     const cardNames = player.playedCards.map((card) => card.name);
     return cardNames.filter((name) => Warmonger.attackCards.includes(name)).length;
   }
@@ -31,6 +31,7 @@ export class Warmonger implements IAward {
     CardName.HEAT_TRAPPERS,
     CardName.HERBIVORES,
     CardName.HIRED_RAIDERS,
+    CardName.MINING_EXPEDITION,
     CardName.POWER_SUPPLY_CONSORTIUM,
     CardName.PREDATORS,
     CardName.SABOTAGE,
@@ -51,12 +52,17 @@ export class Warmonger implements IAward {
     CardName.MONS_INSURANCE,
     // Ares
     CardName.METALLIC_ASTEROID,
+    CardName.DEIMOS_DOWN_ARES,
     // Moon
     CardName.ANCIENT_SHIPYARDS,
     CardName.COSMIC_RADIATION,
     CardName.THE_DARKSIDE_OF_THE_MOON_SYNDICATE,
+    CardName.REVOLTING_COLONISTS,
     // Pathfinders
     CardName.DUST_STORM,
     CardName.SOLAR_STORM,
+    CardName.PUBLIC_SPONSORED_GRANT,
+    // CEOs
+    CardName.BJORN,
   ];
 }

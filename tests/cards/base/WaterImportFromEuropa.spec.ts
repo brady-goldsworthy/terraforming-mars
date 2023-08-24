@@ -4,6 +4,7 @@ import {Game} from '../../../src/server/Game';
 import {SelectSpace} from '../../../src/server/inputs/SelectSpace';
 import {cast, maxOutOceans} from '../../TestingUtils';
 import {TestPlayer} from '../../TestPlayer';
+import {testGame} from '../../TestGame';
 
 describe('WaterImportFromEuropa', function() {
   let card: WaterImportFromEuropa;
@@ -12,9 +13,7 @@ describe('WaterImportFromEuropa', function() {
 
   beforeEach(function() {
     card = new WaterImportFromEuropa();
-    player = TestPlayer.BLUE.newPlayer();
-    const redPlayer = TestPlayer.RED.newPlayer();
-    game = Game.newInstance('gameid', [player, redPlayer], player);
+    [game, player] = testGame(2);
   });
 
   it('Can not act', function() {
@@ -31,7 +30,7 @@ describe('WaterImportFromEuropa', function() {
     player.megaCredits = 13;
 
     const action = card.action(player);
-    expect(action).is.undefined;
+    cast(action, undefined);
 
     game.deferredActions.runNext(); // Payment
     expect(player.megaCredits).to.eq(1);

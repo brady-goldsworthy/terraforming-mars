@@ -1,22 +1,19 @@
 import {expect} from 'chai';
 import {SelectPlayer} from '../../src/server/inputs/SelectPlayer';
 import {TestPlayer} from '../TestPlayer';
-import {Game} from '../../src/server/Game';
-import {getTestPlayers, newTestGame} from '../TestGame';
-import {Player} from '../../src/server/Player';
+import {testGame} from '../TestGame';
+import {IPlayer} from '../../src/server/IPlayer';
 
 describe('SelectPlayer', function() {
   let players: Array<TestPlayer>;
-  let game: Game;
-  let selected: Player | undefined;
-  const cb = (player: Player) => {
+  let selected: IPlayer | undefined;
+  const cb = (player: IPlayer) => {
     selected = player;
     return undefined;
   };
 
   beforeEach(() => {
-    game = newTestGame(3);
-    players = getTestPlayers(game);
+    [/* unused */, ...players] = testGame(3);
     selected = undefined;
   });
 

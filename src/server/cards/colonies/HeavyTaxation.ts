@@ -2,7 +2,7 @@ import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
 import {CardRenderer} from '../render/CardRenderer';
 
@@ -12,7 +12,7 @@ export class HeavyTaxation extends Card implements IProjectCard {
       cost: 3,
       tags: [Tag.EARTH],
       name: CardName.HEAVY_TAXATION,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       victoryPoints: -1,
 
       behavior: {

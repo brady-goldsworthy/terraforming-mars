@@ -1,13 +1,13 @@
 import {Card} from '../Card';
 import {CardName} from '../../../common/cards/CardName';
 import {SelectSpace} from '../../inputs/SelectSpace';
-import {ISpace} from '../../boards/ISpace';
-import {Player} from '../../Player';
+import {Space} from '../../boards/Space';
+import {IPlayer} from '../../IPlayer';
 import {TileType} from '../../../common/TileType';
 import {CardType} from '../../../common/cards/CardType';
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 import {Board} from '../../boards/Board';
 import {Size} from '../../../common/cards/render/Size';
@@ -15,13 +15,14 @@ import {Size} from '../../../common/cards/render/Size';
 export class Wetlands extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.WETLANDS,
       tags: [Tag.PLANT, Tag.MARS],
       cost: 20,
       tr: {oxygen: 1, tr: 1},
       requirements: CardRequirements.builder((b) => b.oceans(2)),
       reserveUnits: {plants: 4},
+      victoryPoints: 1,
 
       metadata: {
         cardNumber: 'Pf03',
@@ -39,9 +40,9 @@ export class Wetlands extends Card implements IProjectCard {
     });
   }
 
-  public availableSpaces(player: Player) {
+  public availableSpaces(player: IPlayer) {
     const board = player.game.board;
-    const adjacentOceans: (space: ISpace) => number = (space) => {
+    const adjacentOceans: (space: Space) => number = (space) => {
       const adjacentSpaces = board.getAdjacentSpaces(space);
       return adjacentSpaces.filter(Board.isOceanSpace).length;
     };
@@ -55,20 +56,20 @@ export class Wetlands extends Card implements IProjectCard {
       .filter((space) => !spacesNextToRedCity.includes(space));
   }
 
-  public override bespokeCanPlay(player: Player) {
-    if (!player.hasUnits(this.reserveUnits)) {
+  public override bespokeCanPlay(player: IPlayer) {
+    if (!player.stock.has(this.reserveUnits)) {
       return false;
     }
     return this.availableSpaces(player).length > 0;
   }
 
-  public override bespokePlay(player: Player) {
-    player.deductUnits(this.reserveUnits);
+  public override bespokePlay(player: IPlayer) {
+    player.stock.deductUnits(this.reserveUnits);
 
     return new SelectSpace(
       'Select space for Wetlands',
       this.availableSpaces(player),
-      (space: ISpace) => {
+      (space: Space) => {
         const tile = {
           tileType: TileType.WETLANDS,
           card: this.name,

@@ -8,7 +8,7 @@ import {Size} from '../../../common/cards/render/Size';
 export class BoringCompany extends Card implements ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.BORING_COMPANY,
       tags: [],
       startingMegaCredits: 60,

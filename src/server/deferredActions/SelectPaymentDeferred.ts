@@ -1,22 +1,22 @@
-import {Player} from '../Player';
+import {IPlayer} from '../IPlayer';
 import {SelectPayment} from '../inputs/SelectPayment';
 import {Payment} from '../../common/inputs/Payment';
 import {DeferredAction, Priority} from './DeferredAction';
-import {Resources} from '../../common/Resources';
 import {CardName} from '../../common/cards/CardName';
+import {Message} from '../../common/logs/Message';
 
 export type Options = {
   canUseSteel?: boolean;
   canUseTitanium?: boolean;
   canUseSeeds?: boolean,
   canUseData?: boolean,
-  title?: string;
+  title?: string | Message;
   afterPay?: () => void;
 }
 
 export class SelectPaymentDeferred extends DeferredAction {
   constructor(
-    player: Player,
+    player: IPlayer,
     public amount: number,
     public options: Options = {},
   ) {
@@ -52,7 +52,7 @@ export class SelectPaymentDeferred extends DeferredAction {
       if (this.player.megaCredits < this.amount) {
         throw new Error(`Player does not have ${this.amount} M€`);
       }
-      this.player.deductResource(Resources.MEGACREDITS, this.amount);
+      this.player.pay(Payment.of({megaCredits: this.amount}));
       this.options.afterPay?.();
       return undefined;
     }
@@ -77,7 +77,7 @@ export class SelectPaymentDeferred extends DeferredAction {
           floaters: false, // Used in project cards only
           microbes: false, // Used in project cards only
           science: false, // Used in project cards only
-          data: this.options.canUseData,
+          auroraiData: this.options.canUseData,
         });
         if (amountPaid < this.amount) {
           throw new Error('Did not spend enough');

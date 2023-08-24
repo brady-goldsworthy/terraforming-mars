@@ -1,7 +1,7 @@
 import {ICorporationCard} from '../corporation/ICorporationCard';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Tag} from '../../../common/cards/Tag';
-import {IActionCard, ICard, isIActionCard} from '../ICard';
+import {IActionCard, ICard, isIActionCard, isIHasCheckLoops} from '../ICard';
 import {SelectCard} from '../../inputs/SelectCard';
 import {Card} from '../Card';
 import {CardName} from '../../../common/cards/CardName';
@@ -14,7 +14,7 @@ export class Viron extends Card implements ICard, ICorporationCard {
       name: CardName.VIRON,
       tags: [Tag.MICROBE],
       startingMegaCredits: 48,
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
 
       metadata: {
         cardNumber: 'R12',
@@ -32,26 +32,31 @@ export class Viron extends Card implements ICard, ICorporationCard {
     });
   }
 
-  private getActionCards(player: Player): Array<IActionCard & ICard> {
+  // This matches Viron.getActionCards.
+  private getActionCards(player: IPlayer): Array<IActionCard & ICard> {
     const result: Array<IActionCard & ICard> = [];
     for (const playedCard of player.tableau) {
       if (playedCard === this) {
         continue;
       }
-      if (isIActionCard(playedCard) &&
-          player.getActionsThisGeneration().has(playedCard.name) &&
-          playedCard.canAct(player)) {
+      if (!isIActionCard(playedCard)) {
+        continue;
+      }
+      if (isIHasCheckLoops(playedCard) && playedCard.getCheckLoops() >= 2) {
+        continue;
+      }
+      if (player.getActionsThisGeneration().has(playedCard.name) && playedCard.canAct(player)) {
         result.push(playedCard);
       }
     }
     return result;
   }
 
-  public canAct(player: Player): boolean {
+  public canAct(player: IPlayer): boolean {
     return this.getActionCards(player).length > 0 && !player.getActionsThisGeneration().has(this.name);
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     if (this.getActionCards(player).length === 0 ) {
       return undefined;
     }

@@ -1,7 +1,8 @@
 import * as prometheus from 'prom-client';
 import {Database} from './Database';
 import {Game} from '../Game';
-import {PlayerId, GameId, SpectatorId, isGameId} from '../../common/Types';
+import {IGame} from '../IGame';
+import {PlayerId, GameId, SpectatorId, isGameId, ParticipantId} from '../../common/Types';
 import {IGameLoader} from './IGameLoader';
 import {GameIdLedger} from './IDatabase';
 import {Cache} from './Cache';
@@ -34,11 +35,13 @@ export class GameLoader implements IGameLoader {
   private cache: Cache;
   private readonly config: CacheConfig;
   private readonly clock: Clock;
+  private purgedGames: Array<GameId>;
 
   private constructor(config: CacheConfig, clock: Clock) {
     this.config = config;
     this.clock = clock;
     this.cache = new Cache(config, clock);
+    this.purgedGames = [];
     timeAsync(this.cache.load())
       .then((v) => {
         metrics.initialize.set(v.duration);
@@ -62,7 +65,7 @@ export class GameLoader implements IGameLoader {
     this.cache.load();
   }
 
-  public async add(game: Game): Promise<void> {
+  public async add(game: IGame): Promise<void> {
     const d = await this.cache.getGames();
     d.games.set(game.id, game);
     if (game.spectatorId !== undefined) {
@@ -75,7 +78,7 @@ export class GameLoader implements IGameLoader {
 
   public async getIds(): Promise<Array<GameIdLedger>> {
     const d = await this.cache.getGames();
-    const map = new MultiMap<GameId, SpectatorId | PlayerId>();
+    const map = new MultiMap<GameId, ParticipantId>();
     d.participantIds.forEach((gameId, participantId) => map.set(gameId, participantId));
     const arry: Array<[GameId, Array<PlayerId | SpectatorId>]> = Array.from(map.associations());
     return arry.map(([gameId, participantIds]) => ({gameId, participantIds}));
@@ -86,7 +89,7 @@ export class GameLoader implements IGameLoader {
     return d.games.get(gameId) !== undefined;
   }
 
-  public async getGame(id: GameId | PlayerId | SpectatorId, forceLoad: boolean = false): Promise<Game | undefined> {
+  public async getGame(id: GameId | PlayerId | SpectatorId, forceLoad: boolean = false): Promise<IGame | undefined> {
     const d = await this.cache.getGames();
     const gameId = isGameId(id) ? id : d.participantIds.get(id);
     if (gameId === undefined) return undefined;
@@ -117,11 +120,18 @@ export class GameLoader implements IGameLoader {
     return undefined;
   }
 
-  public async restoreGameAt(gameId: GameId, saveId: number): Promise<Game> {
-    const serializedGame = await Database.getInstance().restoreGame(gameId, saveId);
+  public async restoreGameAt(gameId: GameId, saveId: number): Promise<IGame> {
+    const current = await this.getGame(gameId);
+    if (current === undefined) {
+      throw new Error('Cannot find game');
+    }
+    const currentSaveId = current.lastSaveId;
+    const serializedGame = await Database.getInstance().getGameVersion(gameId, saveId);
     const game = Game.deserialize(serializedGame);
-    // TODO(kberg): make deleteGameNbrSaves return a promise.
-    await Database.getInstance().deleteGameNbrSaves(gameId, 1);
+    const deletes = (currentSaveId - saveId) - 1;
+    if (deletes > 0) {
+      await Database.getInstance().deleteGameNbrSaves(gameId, deletes);
+    }
     await this.add(game);
     game.undoCount++;
     return game;
@@ -133,6 +143,32 @@ export class GameLoader implements IGameLoader {
 
   public sweep() {
     this.cache.sweep();
+  }
+
+  public async completeGame(game: IGame) {
+    const database = Database.getInstance();
+    await database.saveGame(game);
+    try {
+      this.mark(game.id);
+      await database.markFinished(game.id);
+      await this.maintenance();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  public saveGame(game: IGame): Promise<void> {
+    if (this.purgedGames.includes(game.id)) {
+      throw new Error('This game no longer exists');
+    }
+    return Database.getInstance().saveGame(game);
+  }
+
+  public async maintenance() {
+    const database = Database.getInstance();
+    const purgedGames = await database.purgeUnfinishedGames();
+    this.purgedGames.push(...purgedGames);
+    await database.compressCompletedGames();
   }
 }
 

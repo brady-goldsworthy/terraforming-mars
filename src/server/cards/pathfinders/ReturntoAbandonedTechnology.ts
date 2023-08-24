@@ -1,5 +1,5 @@
 import {IProjectCard} from '../IProjectCard';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Card} from '../Card';
 import {DrawCards} from '../../deferredActions/DrawCards';
 import {CardType} from '../../../common/cards/CardType';
@@ -11,7 +11,7 @@ import {Size} from '../../../common/cards/render/Size';
 export class ReturntoAbandonedTechnology extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.EVENT,
+      type: CardType.EVENT,
       name: CardName.RETURN_TO_ABANDONED_TECHNOLOGY,
       cost: 4,
       tags: [Tag.MARS],
@@ -25,11 +25,11 @@ export class ReturntoAbandonedTechnology extends Card implements IProjectCard {
     });
   }
 
-  public override bespokeCanPlay(player: Player) {
+  public override bespokeCanPlay(player: IPlayer) {
     return player.game.projectDeck.discardPile.length > 0;
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     const cards: Array<IProjectCard> = [];
     for (let idx = 0; idx < 4; idx++) {
       const card = player.game.projectDeck.discardPile.pop();

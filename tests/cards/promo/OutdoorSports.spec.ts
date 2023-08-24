@@ -1,21 +1,20 @@
 import {expect} from 'chai';
-import {getTestPlayer, newTestGame} from '../../TestGame';
+import {testGame} from '../../TestGame';
 import {OutdoorSports} from '../../../src/server/cards/promo/OutdoorSports';
 import {TestPlayer} from '../../TestPlayer';
-import {ISpace} from '../../../src/server/boards/ISpace';
+import {Space} from '../../../src/server/boards/Space';
 
 describe('OutdoorSports', function() {
   let card: OutdoorSports;
   let player: TestPlayer;
   let player2: TestPlayer;
-  let oceanSpace: ISpace;
-  let spaceNextToOcean: ISpace;
-  let spaceNotNextToOcean: ISpace;
+  let oceanSpace: Space;
+  let spaceNextToOcean: Space;
+  let spaceNotNextToOcean: Space;
+
   beforeEach(function() {
     card = new OutdoorSports();
-    const game = newTestGame(2);
-    player = getTestPlayer(game, 0);
-    player2 = getTestPlayer(game, 1);
+    [, player, player2] = testGame(2);
     const board = player.game.board;
     oceanSpace = board.getAvailableSpacesForOcean(player)[0];
 
@@ -27,28 +26,28 @@ describe('OutdoorSports', function() {
 
   it('cannotPlay', function() {
     player.megaCredits = card.cost;
-    player.game.addOceanTile(player, oceanSpace);
+    player.game.addOcean(player, oceanSpace);
     expect(player.canPlay(card)).is.not.true;
 
-    player.game.addCityTile(player, spaceNotNextToOcean);
+    player.game.addCity(player, spaceNotNextToOcean);
     expect(player.canPlay(card)).is.not.true;
   });
 
   it('canPlay', function() {
     player.megaCredits = card.cost;
-    player.game.addOceanTile(player, oceanSpace);
+    player.game.addOcean(player, oceanSpace);
     expect(player.canPlay(card)).is.not.true;
 
-    player.game.addCityTile(player, spaceNextToOcean);
+    player.game.addCity(player, spaceNextToOcean);
     expect(player.canPlay(card)).is.true;
   });
 
   it('canPlay - other player owns the city', function() {
     player.megaCredits = card.cost;
-    player.game.addOceanTile(player, oceanSpace);
+    player.game.addOcean(player, oceanSpace);
     expect(player.canPlay(card)).is.not.true;
 
-    player.game.addCityTile(player2, spaceNextToOcean);
+    player.game.addCity(player2, spaceNextToOcean);
     expect(player.canPlay(card)).is.true;
   });
 

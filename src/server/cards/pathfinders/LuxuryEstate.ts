@@ -4,13 +4,13 @@ import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
 import {Tag} from '../../../common/cards/Tag';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Size} from '../../../common/cards/render/Size';
 
 export class LuxuryEstate extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.LUXURY_ESTATE,
       cost: 12,
       tags: [Tag.EARTH, Tag.MARS, Tag.BUILDING],

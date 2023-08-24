@@ -2,9 +2,8 @@ import {IActionCard} from '../ICard';
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {Card} from '../Card';
-import {VictoryPoints} from '../ICard';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardName} from '../../../common/cards/CardName';
 import {PlaceOceanTile} from '../../deferredActions/PlaceOceanTile';
 import {SelectPaymentDeferred} from '../../deferredActions/SelectPaymentDeferred';
@@ -14,12 +13,12 @@ const ACTION_COST = 12;
 export class WaterImportFromEuropa extends Card implements IActionCard, IProjectCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.WATER_IMPORT_FROM_EUROPA,
       tags: [Tag.JOVIAN, Tag.SPACE],
       cost: 25,
 
-      victoryPoints: VictoryPoints.tags(Tag.JOVIAN, 1, 1),
+      victoryPoints: {tag: Tag.JOVIAN},
 
       metadata: {
         cardNumber: '012',
@@ -32,10 +31,10 @@ export class WaterImportFromEuropa extends Card implements IActionCard, IProject
       },
     });
   }
-  public canAct(player: Player): boolean {
+  public canAct(player: IPlayer): boolean {
     return player.canAfford(ACTION_COST, {titanium: true, tr: {oceans: 1}});
   }
-  public action(player: Player) {
+  public action(player: IPlayer) {
     player.game.defer(new SelectPaymentDeferred(player, ACTION_COST, {canUseTitanium: true, title: 'Select how to pay for action', afterPay: () => {
       player.game.defer(new PlaceOceanTile(player));
     }}));

@@ -1,18 +1,15 @@
-import {PlayerInput} from '../PlayerInput';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
+import {BasePlayerInput, PlayerInput} from '../PlayerInput';
 import {InputResponse, isAndOptionsResponse} from '../../common/inputs/InputResponse';
-import {Player} from '../Player';
+import {IPlayer} from '../IPlayer';
 
-export class AndOptions implements PlayerInput {
-  public readonly inputType: PlayerInputType = PlayerInputType.AND_OPTIONS;
-  public title = '';
-  public buttonLabel: string = 'Save';
+export class AndOptions extends BasePlayerInput {
   public options: Array<PlayerInput>;
   constructor(public cb: () => PlayerInput | undefined, ...options: Array<PlayerInput>) {
+    super('and');
     this.options = options;
   }
 
-  public process(input: InputResponse, player: Player) {
+  public process(input: InputResponse, player: IPlayer) {
     if (!isAndOptionsResponse(input)) {
       throw new Error('Not a valid AndOptionsResponse');
     }

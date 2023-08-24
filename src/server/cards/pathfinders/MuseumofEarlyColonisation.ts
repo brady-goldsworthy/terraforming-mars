@@ -4,13 +4,13 @@ import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
 import {Tag} from '../../../common/cards/Tag';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {all} from '../Options';
 
 export class MuseumofEarlyColonisation extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.MUSEUM_OF_EARLY_COLONISATION,
       cost: 20,
       tags: [Tag.BUILDING, Tag.MARS],

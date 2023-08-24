@@ -17,7 +17,7 @@ import * as constants from '@/common/constants';
 import * as HTTPResponseCode from '@/client/utils/HTTPResponseCode';
 import GameOverview from '@/client/components/admin/GameOverview.vue';
 import {SimpleGameModel} from '@/common/models/SimpleGameModel';
-import {GameId, PlayerId, SpectatorId} from '@/common/Types';
+import {GameId, ParticipantId} from '@/common/Types';
 
 type FetchStatus = {
   id: GameId;
@@ -29,7 +29,7 @@ type DataModel = {
 };
 
 // Copied from routes/Game.ts and probably IDatabase. Should be centralized I suppose
-type Response = {gameId: GameId, participants: Array<SpectatorId | PlayerId>};
+type Response = {gameId: GameId, participants: Array<ParticipantId>};
 
 export default Vue.extend({
   name: 'games-overview',
@@ -48,7 +48,7 @@ export default Vue.extend({
     getGames() {
       const vueApp = this;
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', '/api/games?serverId='+this.serverId);
+      xhr.open('GET', 'api/games?serverId='+this.serverId);
       xhr.onerror = function() {
         alert('Error getting games data');
       };
@@ -78,7 +78,7 @@ export default Vue.extend({
       const entry = this.entries[idx];
       const gameId = entry.id;
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', '/api/game?id='+gameId);
+      xhr.open('GET', 'api/game?id='+gameId);
       xhr.onerror = () => {
         entry.status = 'error';
         this.getGame(idx + 1);

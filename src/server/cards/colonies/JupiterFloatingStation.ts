@@ -1,14 +1,14 @@
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardName} from '../../../common/cards/CardName';
 import {CardResource} from '../../../common/CardResource';
 import {OrOptions} from '../../inputs/OrOptions';
 import {SelectOption} from '../../inputs/SelectOption';
-import {Resources} from '../../../common/Resources';
+import {Resource} from '../../../common/Resource';
 import {AddResourcesToCard} from '../../deferredActions/AddResourcesToCard';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
 import {CardRenderer} from '../render/CardRenderer';
 import {Size} from '../../../common/cards/render/Size';
@@ -19,7 +19,7 @@ export class JupiterFloatingStation extends Card implements IProjectCard {
       cost: 9,
       tags: [Tag.JOVIAN],
       name: CardName.JUPITER_FLOATING_STATION,
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       resourceType: CardResource.FLOATER,
       requirements: CardRequirements.builder((b) => b.tag(Tag.SCIENCE, 3)),
       victoryPoints: 1,
@@ -49,7 +49,7 @@ export class JupiterFloatingStation extends Card implements IProjectCard {
     return true;
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     return new OrOptions(
       new SelectOption('Add 1 floater to a Jovian card', 'Add floater', () => {
         player.game.defer(new AddResourcesToCard(player, CardResource.FLOATER, {
@@ -58,7 +58,7 @@ export class JupiterFloatingStation extends Card implements IProjectCard {
         return undefined;
       }),
       new SelectOption('Gain 1 M€ per floater here (max 4) ', 'Gain M€', () => {
-        player.addResource(Resources.MEGACREDITS, Math.min(this.resourceCount, 4), {log: true});
+        player.stock.add(Resource.MEGACREDITS, Math.min(this.resourceCount, 4), {log: true});
         return undefined;
       }),
     );

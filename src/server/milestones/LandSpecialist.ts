@@ -1,12 +1,16 @@
-import {IMilestone} from './IMilestone';
-import {Player} from '../Player';
+import {BaseMilestone} from './IMilestone';
+import {IPlayer} from '../IPlayer';
 import {isSpecialTile, playerTileFn} from '../boards/Board';
 import {MoonExpansion} from '../moon/MoonExpansion';
 
-export class LandSpecialist implements IMilestone {
-  public readonly name = 'Land Specialist';
-  public readonly description = 'Requires that you have 3 special (normally, brown) tiles in play';
-  public getScore(player: Player): number {
+export class LandSpecialist extends BaseMilestone {
+  constructor() {
+    super(
+      'Land Specialist',
+      'Own 3 special (normally, brown) tiles',
+      3);
+  }
+  public getScore(player: IPlayer): number {
     const spaces = player.game.board.spaces
       .filter(playerTileFn(player))
       .filter(isSpecialTile);
@@ -21,8 +25,5 @@ export class LandSpecialist implements IMilestone {
     },
     () => 0);
     return marsCount + moonCount;
-  }
-  public canClaim(player: Player): boolean {
-    return this.getScore(player) >= 3;
   }
 }

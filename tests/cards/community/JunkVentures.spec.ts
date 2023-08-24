@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {getTestPlayer, newTestGame} from '../../TestGame';
+import {testGame} from '../../TestGame';
 import {cast} from '../../TestingUtils';
 import {JunkVentures} from '../../../src/server/cards/community/JunkVentures';
 import {IProjectCard} from '../../../src/server/cards/IProjectCard';
@@ -17,15 +17,12 @@ describe('JunkVentures', function() {
 
   beforeEach(() => {
     card = new JunkVentures();
-    game = newTestGame(2);
-    player = getTestPlayer(game, 0);
-    player.popSelectInitialCards();
-
+    [game, player] = testGame(2);
     player.playCorporationCard(card);
   });
 
   it('Cannot act', function() {
-    expect(game.projectDeck.discardPile.length).eq(0);
+    expect(game.projectDeck.discardPile).is.empty;
     expect(card.canAct(player)).is.false;
 
     game.projectDeck.discard(game.projectDeck.draw(game));

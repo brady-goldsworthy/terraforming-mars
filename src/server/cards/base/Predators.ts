@@ -2,27 +2,26 @@ import {IActionCard} from '../ICard';
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {Card} from '../Card';
-import {VictoryPoints} from '../ICard';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardResource} from '../../../common/CardResource';
 import {CardName} from '../../../common/cards/CardName';
 import {AddResourcesToCard} from '../../deferredActions/AddResourcesToCard';
 import {RemoveResourcesFromCard} from '../../deferredActions/RemoveResourcesFromCard';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 import {all} from '../Options';
 
 export class Predators extends Card implements IProjectCard, IActionCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.PREDATORS,
       tags: [Tag.ANIMAL],
       cost: 14,
 
       resourceType: CardResource.ANIMAL,
-      victoryPoints: VictoryPoints.resource(1, 1),
+      victoryPoints: {resourcesHere: {}},
       requirements: CardRequirements.builder((b) => b.oxygen(11)),
 
       metadata: {
@@ -38,12 +37,12 @@ export class Predators extends Card implements IProjectCard, IActionCard {
     });
   }
 
-  public canAct(player: Player): boolean {
+  public canAct(player: IPlayer): boolean {
     if (player.game.isSoloMode()) return true;
     return RemoveResourcesFromCard.getAvailableTargetCards(player, CardResource.ANIMAL).length > 0;
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     player.game.defer(new RemoveResourcesFromCard(player, CardResource.ANIMAL));
     player.game.defer(new AddResourcesToCard(player, CardResource.ANIMAL, {filter: (c) => c.name === this.name}));
     return undefined;

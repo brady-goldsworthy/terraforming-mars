@@ -1,8 +1,8 @@
 import {CardName} from '../../../common/cards/CardName';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardType} from '../../../common/cards/CardType';
 import {Tag} from '../../../common/cards/Tag';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 import {TileType} from '../../../common/TileType';
 import {CardRenderDynamicVictoryPoints} from '../render/CardRenderDynamicVictoryPoints';
@@ -14,7 +14,7 @@ export class LunaMiningHub extends Card {
   constructor() {
     super({
       name: CardName.LUNA_MINING_HUB,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       tags: [Tag.BUILDING],
       cost: 16,
       reserveUnits: {steel: 1, titanium: 1},
@@ -49,7 +49,7 @@ export class LunaMiningHub extends Card {
     });
   }
 
-  public override getVictoryPoints(player: Player) {
+  public override getVictoryPoints(player: IPlayer) {
     const moonData = MoonExpansion.moonData(player.game);
     const usedSpace = moonData.moon.getSpaceByTileCard(this.name);
     if (usedSpace !== undefined) {

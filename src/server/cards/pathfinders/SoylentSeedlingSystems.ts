@@ -1,4 +1,4 @@
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
@@ -8,13 +8,13 @@ import {Size} from '../../../common/cards/render/Size';
 import {played} from '../Options';
 import {ICorporationCard} from '../corporation/ICorporationCard';
 import {CardResource} from '../../../common/CardResource';
-import {ISpace} from '../../boards/ISpace';
+import {Space} from '../../boards/Space';
 import {Board} from '../../boards/Board';
 
 export class SoylentSeedlingSystems extends Card implements ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.SOYLENT_SEEDLING_SYSTEMS,
       tags: [Tag.SCIENCE, Tag.PLANT],
       startingMegaCredits: 38,
@@ -40,7 +40,7 @@ export class SoylentSeedlingSystems extends Card implements ICorporationCard {
     });
   }
 
-  public onTilePlaced(cardOwner: Player, activePlayer: Player, space: ISpace) {
+  public onTilePlaced(cardOwner: IPlayer, activePlayer: IPlayer, space: Space) {
     if (cardOwner.id !== activePlayer.id) {
       return;
     }

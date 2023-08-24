@@ -1,5 +1,5 @@
-import {Player} from '../Player';
-import {Resources} from '../../common/Resources';
+import {IPlayer} from '../IPlayer';
+import {Resource} from '../../common/Resource';
 import {SelectPlayer} from '../inputs/SelectPlayer';
 import {DeferredAction, Priority} from './DeferredAction';
 
@@ -9,8 +9,8 @@ export type Options = {
 }
 export class DecreaseAnyProduction extends DeferredAction {
   constructor(
-    player: Player,
-    public resource: Resources,
+    player: IPlayer,
+    public resource: Resource,
     public options: Options = {
       count: 1,
       stealing: false,
@@ -26,7 +26,7 @@ export class DecreaseAnyProduction extends DeferredAction {
       return undefined;
     }
 
-    const candidates: Array<Player> = this.player.game.getPlayers().filter((p) => p.canHaveProductionReduced(this.resource, this.options.count, this.player));
+    const candidates: Array<IPlayer> = this.player.game.getPlayers().filter((p) => p.canHaveProductionReduced(this.resource, this.options.count, this.player));
 
     if (candidates.length === 0) {
       return undefined;
@@ -41,7 +41,7 @@ export class DecreaseAnyProduction extends DeferredAction {
       candidates,
       this.title,
       'Decrease',
-      (found: Player) => {
+      (found: IPlayer) => {
         found.production.add(this.resource, -this.options.count, {log: true, from: this.player, stealing: this.options.stealing});
         return undefined;
       },

@@ -1,16 +1,15 @@
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {Card} from '../Card';
-import {VictoryPoints} from '../ICard';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
-import {ISpace} from '../../boards/ISpace';
-import {Resources} from '../../../common/Resources';
+import {IPlayer} from '../../IPlayer';
+import {Space} from '../../boards/Space';
+import {Resource} from '../../../common/Resource';
 import {CardResource} from '../../../common/CardResource';
 import {CardName} from '../../../common/cards/CardName';
 import {AddResourcesToCard} from '../../deferredActions/AddResourcesToCard';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Size} from '../../../common/cards/render/Size';
 import {all} from '../Options';
 import {Board} from '../../boards/Board';
@@ -18,17 +17,17 @@ import {Board} from '../../boards/Board';
 export class Herbivores extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.HERBIVORES,
       tags: [Tag.ANIMAL],
       cost: 12,
 
       resourceType: CardResource.ANIMAL,
-      victoryPoints: VictoryPoints.resource(1, 2),
+      victoryPoints: {resourcesHere: {}, per: 2},
       requirements: CardRequirements.builder((b) => b.oxygen(8)),
 
       behavior: {
-        decreaseAnyProduction: {type: Resources.PLANTS, count: 1},
+        decreaseAnyProduction: {type: Resource.PLANTS, count: 1},
         addResources: 1,
       },
 
@@ -50,7 +49,7 @@ export class Herbivores extends Card implements IProjectCard {
     });
   }
 
-  public onTilePlaced(cardOwner: Player, activePlayer: Player, space: ISpace) {
+  public onTilePlaced(cardOwner: IPlayer, activePlayer: IPlayer, space: Space) {
     if (cardOwner.id === activePlayer.id && Board.isGreenerySpace(space)) {
       cardOwner.game.defer(new AddResourcesToCard(cardOwner, CardResource.ANIMAL, {filter: (c) => c.name === this.name}));
     }

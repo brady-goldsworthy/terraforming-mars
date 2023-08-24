@@ -1,5 +1,5 @@
 import {CardName} from '../../../common/cards/CardName';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardType} from '../../../common/cards/CardType';
 import {Tag} from '../../../common/cards/Tag';
 import {MoonExpansion} from '../../moon/MoonExpansion';
@@ -7,14 +7,14 @@ import {TileType} from '../../../common/TileType';
 import {CardRenderDynamicVictoryPoints} from '../render/CardRenderDynamicVictoryPoints';
 import {CardRenderer} from '../render/CardRenderer';
 import {Card} from '../Card';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {digit} from '../Options';
 
 export class LunaTrainStation extends Card {
   constructor() {
     super({
       name: CardName.LUNA_TRAIN_STATION,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       tags: [Tag.BUILDING],
       cost: 20,
       reserveUnits: {steel: 2},
@@ -45,7 +45,7 @@ export class LunaTrainStation extends Card {
     });
   }
 
-  public override getVictoryPoints(player: Player) {
+  public override getVictoryPoints(player: IPlayer) {
     const moonData = MoonExpansion.moonData(player.game);
     const usedSpace = moonData.moon.getSpaceByTileCard(this.name);
     if (usedSpace !== undefined) {

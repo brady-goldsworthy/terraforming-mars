@@ -1,5 +1,16 @@
-export const PAYMENT_KEYS = ['heat', 'megaCredits', 'steel', 'titanium', 'microbes', 'floaters', 'science', 'seeds', 'data'] as const;
+// https://steveholgado.com/typescript-types-from-arrays/
+export const PAYMENT_KEYS = ['heat', 'megaCredits', 'steel', 'titanium', 'microbes', 'floaters', 'science', 'seeds', 'auroraiData'] as const;
 export type PaymentKey = typeof PAYMENT_KEYS[number];
+
+/**
+ * The units of resources to deduct from the player's play area. These resources are all worth
+ * megacredits under certain conditions.
+ *
+ * At this point, megaCredits means actual money, because (for instance if the player was Helion) they
+ * probably chose to spend money instead of heat.
+ *
+ * Exception: Player.pay({heat}) still triggers asking the caller if they want to spend Stormcraft resources.
+ */
 export type Payment = {
   // Standard currency for paying for stuff
   megaCredits: number;
@@ -15,11 +26,11 @@ export type Payment = {
   floaters: number;
   // Luna Archives corporation can spend its science resources for cards with Moon tags.
   science: number;
-  // TODO: add test for Soylent Seedling Systems + Psychophiles.
+  // TODO(kberg): add test for Soylent Seedling Systems + Psychophiles.
   // Soylent Seedling Systems corporation can use its seeds to pay for cards with plant tags, or the standard greenery project.
   seeds: number;
   // Aurorai corporation can use its data to pay for standard projects.
-  data: number;
+  auroraiData: number;
 }
 
 export function isPayment(obj: unknown): obj is Payment {
@@ -32,7 +43,7 @@ export function isPayment(obj: unknown): obj is Payment {
 
 export namespace Payment {
   export const EMPTY: Readonly<Payment> = {
-    heat: 0, megaCredits: 0, steel: 0, titanium: 0, microbes: 0, floaters: 0, science: 0, seeds: 0, data: 0,
+    heat: 0, megaCredits: 0, steel: 0, titanium: 0, microbes: 0, floaters: 0, science: 0, seeds: 0, auroraiData: 0,
   } as const;
 
   export interface Options {
@@ -42,12 +53,12 @@ export namespace Payment {
     microbes: boolean,
     science: boolean,
     seeds: boolean,
-    data: boolean,
+    auroraiData: boolean,
   }
 
   export function of(payment: Partial<Payment>) : Payment {
     return {
-      data: payment.data ?? 0,
+      auroraiData: payment.auroraiData ?? 0,
       floaters: payment.floaters ?? 0,
       heat: payment.heat ?? 0,
       megaCredits: payment.megaCredits ?? 0,

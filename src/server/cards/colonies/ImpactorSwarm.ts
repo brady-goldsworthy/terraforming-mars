@@ -2,7 +2,7 @@ import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
 import {CardRenderer} from '../render/CardRenderer';
 import {all, digit} from '../Options';
@@ -13,7 +13,7 @@ export class ImpactorSwarm extends Card implements IProjectCard {
       cost: 11,
       tags: [Tag.SPACE],
       name: CardName.IMPACTOR_SWARM,
-      cardType: CardType.EVENT,
+      type: CardType.EVENT,
 
       behavior: {
         stock: {heat: 12},

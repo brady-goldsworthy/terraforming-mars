@@ -2,7 +2,7 @@ import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {OrOptions} from '../../inputs/OrOptions';
 import {SelectCard} from '../../inputs/SelectCard';
 import {SelectOption} from '../../inputs/SelectOption';
@@ -14,7 +14,7 @@ import {played} from '../Options';
 export class MarsUniversity extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.MARS_UNIVERSITY,
       tags: [Tag.SCIENCE, Tag.BUILDING],
       cost: 8,
@@ -31,7 +31,7 @@ export class MarsUniversity extends Card implements IProjectCard {
     });
   }
 
-  public onCardPlayed(player: Player, card: IProjectCard) {
+  public onCardPlayed(player: IPlayer, card: IProjectCard) {
     const scienceTags = player.tags.cardTagCount(card, Tag.SCIENCE);
     for (let i = 0; i < scienceTags; i++) {
       player.game.defer(new SimpleDeferredAction(

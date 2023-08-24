@@ -1,5 +1,5 @@
 import {Game} from '../../../src/server/Game';
-import {testGameOptions, testRedsCosts} from '../../TestingUtils';
+import {setOxygenLevel, testRedsCosts} from '../../TestingUtils';
 import {TestPlayer} from '../../TestPlayer';
 import {AlgaeBioreactors} from '../../../src/server/cards/moon/AlgaeBioreactors';
 import {expect} from 'chai';
@@ -16,7 +16,7 @@ describe('AlgaeBioreactors', () => {
 
   beforeEach(() => {
     player = TestPlayer.BLUE.newPlayer();
-    game = Game.newInstance('gameid', [player], player, testGameOptions({moonExpansion: true}));
+    game = Game.newInstance('gameid', [player], player, {moonExpansion: true});
     card = new AlgaeBioreactors();
     moonData = MoonExpansion.moonData(game);
   });
@@ -26,29 +26,29 @@ describe('AlgaeBioreactors', () => {
     player.megaCredits = card.cost;
 
     player.production.override({plants: 1});
-    expect(player.getPlayableCards()).does.include(card);
+    expect(player.getPlayableCardsForTest()).does.include(card);
 
     player.production.override({plants: 0});
-    expect(player.getPlayableCards()).does.not.include(card);
+    expect(player.getPlayableCardsForTest()).does.not.include(card);
   });
 
   it('play', () => {
     player.production.override({plants: 1});
     expect(player.getTerraformRating()).eq(14);
     expect(game.getOxygenLevel()).eq(0);
-    moonData.colonyRate = 0;
+    moonData.habitatRate = 0;
 
     card.play(player);
 
     expect(player.production.plants).eq(0);
-    expect(moonData.colonyRate).eq(1);
+    expect(moonData.habitatRate).eq(1);
     expect(game.getOxygenLevel()).eq(1);
     expect(player.getTerraformRating()).eq(16);
   });
 
   it('canPlay when Reds are in power', () => {
     const player = TestPlayer.BLUE.newPlayer();
-    const game = Game.newInstance('gameid', [player], player, testGameOptions({moonExpansion: true, turmoilExtension: true}));
+    const game = Game.newInstance('gameid', [player], player, {moonExpansion: true, turmoilExtension: true});
     const moonData = MoonExpansion.moonData(game);
     game.phase = Phase.ACTION;
 
@@ -56,9 +56,9 @@ describe('AlgaeBioreactors', () => {
     player.production.override({plants: 1});
 
     testRedsCosts(() => player.canPlay(card), player, card.cost, 6);
-    moonData.colonyRate = 8;
+    moonData.habitatRate = 8;
     testRedsCosts(() => player.canPlay(card), player, card.cost, 3);
-    (game as any).oxygenLevel = MAX_OXYGEN_LEVEL;
+    setOxygenLevel(game, MAX_OXYGEN_LEVEL);
     testRedsCosts(() => player.canPlay(card), player, card.cost, 0);
   });
 });
