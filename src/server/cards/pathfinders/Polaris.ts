@@ -19,7 +19,7 @@ export class Polaris extends Card implements ICorporationCard {
       cardType: CardType.CORPORATION,
       name: CardName.POLARIS,
       tags: [Tag.SPACE],
-      startingMegaCredits: 32,
+      startingMegaCredits: 48,
 
       firstAction: {
         text: 'Place your initial ocean.',
@@ -28,10 +28,10 @@ export class Polaris extends Card implements ICorporationCard {
 
       metadata: {
         cardNumber: 'PfC1',
-        description: 'You start with 32 M€. As your first action, place an ocean tile.',
+        description: 'You start with 48 M€. As your first action, place an ocean tile.',
         renderData: CardRenderer.builder((b) => {
           b.br;
-          b.megacredits(32).oceans(1);
+          b.megacredits(48).oceans(1);
           b.corpBox('effect', (ce) => {
             ce.effect('When any ocean tile is placed ON MARS, increase your M€ production 1 step. When you place an ocean tile, gain 4M€.', (eb) => {
               eb.oceans(1, {size: Size.SMALL, all}).colon().production((pb) => pb.megacredits(1));

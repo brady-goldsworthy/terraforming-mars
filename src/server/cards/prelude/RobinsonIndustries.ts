@@ -15,6 +15,7 @@ export class RobinsonIndustries extends Card implements IActionCard, ICorporatio
       cardType: CardType.CORPORATION,
       name: CardName.ROBINSON_INDUSTRIES,
       startingMegaCredits: 47,
+      initialActionText: 'Increase production two steps',
 
       metadata: {
         cardNumber: 'R27',
@@ -23,8 +24,8 @@ export class RobinsonIndustries extends Card implements IActionCard, ICorporatio
           b.br.br.br;
           b.megacredits(47);
           b.corpBox('action', (ce) => {
-            ce.action('Spend 4 M€ to increase (one of) your LOWEST production 1 step.', (eb) => {
-              eb.megacredits(4).startAction.production((pb) => pb.wild(1).asterix());
+            ce.action('Increase (one of) your LOWEST production 1 step.', (eb) => {
+              eb.startAction.production((pb) => pb.wild(1).asterix());
             });
           });
         }),
@@ -35,19 +36,30 @@ export class RobinsonIndustries extends Card implements IActionCard, ICorporatio
     return player.canAfford(4);
   }
 
+  public initialAction(player: Player) {
+    let selection: Array<SelectOption> = [];
+
+    [Resources.MEGACREDITS, Resources.STEEL, Resources.TITANIUM, Resources.PLANTS, Resources.ENERGY, Resources.HEAT].forEach((resource) => {
+      const option = new SelectOption('Increase ' + resource + ' production 2 steps', 'Select', () => {
+        player.production.add(resource, 2, {log: true});
+        return undefined;
+      });
+
+      selection.push(option)
+    })
+
+    const result = new OrOptions();
+    result.options = selection;
+    return result;
+  }
+
   public action(player: Player) {
     let minimum = player.production.megacredits;
     let lowest: Array<SelectOption> = [];
 
     [Resources.MEGACREDITS, Resources.STEEL, Resources.TITANIUM, Resources.PLANTS, Resources.ENERGY, Resources.HEAT].forEach((resource) => {
       const option = new SelectOption('Increase ' + resource + ' production 1 step', 'Select', () => {
-        player.payMegacreditsDeferred(
-          4,
-          'Select how to pay for Robinson Industries action.',
-          () => {
-            // Add production after payment, to prevent Manutech from being in the way.
-            player.production.add(resource, 1, {log: true});
-          });
+        player.production.add(resource, 1, {log: true});
         return undefined;
       });
 

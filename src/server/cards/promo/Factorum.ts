@@ -33,7 +33,7 @@ export class Factorum extends Card implements IActionCard, ICorporationCard {
             ce.action(undefined, (eb) => {
               eb.empty().startAction.production((pb) => pb.energy(1)).or();
             });
-            ce.action('Increase your energy production 1 step IF YOU HAVE NO ENERGY RESOURCES, or spend 3M€ or 1 energy to draw a building card.', (eb) => {
+            ce.action('Increase your energy production 1 step, or spend 3M€ or 1 energy to draw a building card.', (eb) => {
               eb.energy(1).slash().megacredits(3).startAction.cards(1, {secondaryTag: Tag.BUILDING});
             });
           });
@@ -74,7 +74,8 @@ export class Factorum extends Card implements IActionCard, ICorporationCard {
       }
     );
 
-    const can_increase_energy = player.energy === 0;
+    //Jank but it should work
+    const can_increase_energy = true;
     const can_afford_megacredits = player.canAfford(3);
     const can_afford_energy = player.energy >= 1;
 

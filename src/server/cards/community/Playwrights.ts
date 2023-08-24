@@ -32,7 +32,7 @@ export class Playwrights extends Card implements ICorporationCard {
           b.br.br;
           b.megacredits(38).production((pb) => pb.energy(1));
           b.corpBox('action', (cb) => {
-            cb.action('Replay a played event from any player by paying its cost ONLY in M€ (discounts and rebates apply), then REMOVE IT FROM PLAY.', (eb) => {
+            cb.action('Replay a played event from any player by paying its cost (discounts and rebates apply), then REMOVE IT FROM PLAY.', (eb) => {
               // TODO(chosta): find a reasonable way to represent "?" (alphanumeric maybe)
               // use 1000 as an id to tell Vue to render the '?'
               eb.megacredits(1000).startAction;
@@ -58,7 +58,7 @@ export class Playwrights extends Card implements ICorporationCard {
     const replayableEvents = this.getReplayableEvents(player);
 
     return new SelectCard<IProjectCard>(
-      'Select event card to replay at cost in M€ and remove from play', 'Select', replayableEvents,
+      'Select event card to replay and remove from play', 'Select', replayableEvents,
       ([card]) => {
         const selectedCard: IProjectCard = card;
 
@@ -69,11 +69,14 @@ export class Playwrights extends Card implements ICorporationCard {
           }
         });
 
+        const canUseTitanium = card.tags.includes(Tag.SPACE)
+
         const cost = player.getCardCost(selectedCard);
         player.game.defer(new SelectPaymentDeferred(
           player,
           cost,
           {
+            canUseTitanium,
             title: 'Select how to pay to replay the event',
             afterPay: () => {
               player.playCard(selectedCard, undefined, 'nothing'); // Play the card but don't add it to played cards
