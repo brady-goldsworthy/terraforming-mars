@@ -25,7 +25,7 @@ export class Astrodrill extends Card implements IActionCard, ICorporationCard {
       tags: [Tag.SPACE],
       startingMegaCredits: 40,
       resourceType: CardResource.ASTEROID,
-      initialActionText: 'Draw a card with an asteroid icon on it',
+      initialActionText: 'Draw two cards with an asteroid icon on it',
 
       behavior: {
         addResources: 4,
@@ -35,7 +35,7 @@ export class Astrodrill extends Card implements IActionCard, ICorporationCard {
         cardNumber: 'R21',
         description: 'You start with 40 M€ and 4 asteroid resources. As your first action, reveal cards from the deck until you have revealed a card with an asteroid icon on it. Take it into hand and discard the rest.',
         renderData: CardRenderer.builder((b) => {
-          b.megacredits(40).nbsp.asteroids(4, {digit}).nbsp.cards(1, {secondaryTag: AltSecondaryTag.WILD_RESOURCE});;
+          b.megacredits(40).nbsp.asteroids(4, {digit}).nbsp.cards(2, {secondaryTag: AltSecondaryTag.WILD_RESOURCE});;
           b.corpBox('action', (ce) => {
             ce.vSpace(Size.SMALL);
             ce.action(undefined, (eb) => {
@@ -56,7 +56,7 @@ export class Astrodrill extends Card implements IActionCard, ICorporationCard {
   }
 
   public initialAction(player: Player) {
-    player.drawCard(1, {
+    player.drawCard(2, {
       include: (card) => card.resourceType === CardResource.ASTEROID,
     });
     return undefined;
