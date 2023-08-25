@@ -15,6 +15,7 @@ import {CardRenderer} from '../render/CardRenderer';
 import {Size} from '../../../common/cards/render/Size';
 import {digit} from '../Options';
 import {PlayerInput} from '../../PlayerInput';
+import {AltSecondaryTag} from '../../../common/cards/render/AltSecondaryTag';
 
 export class Astrodrill extends Card implements IActionCard, ICorporationCard {
   constructor() {
@@ -22,21 +23,21 @@ export class Astrodrill extends Card implements IActionCard, ICorporationCard {
       cardType: CardType.CORPORATION,
       name: CardName.ASTRODRILL,
       tags: [Tag.SPACE],
-      startingMegaCredits: 35,
+      startingMegaCredits: 40,
       resourceType: CardResource.ASTEROID,
+      initialActionText: 'Draw a card with an asteroid icon on it',
 
       behavior: {
-        addResources: 3,
+        addResources: 4,
       },
 
       metadata: {
         cardNumber: 'R21',
-        description: 'You start with 35 M€ and 3 asteroid resources.',
+        description: 'You start with 40 M€ and 4 asteroid resources. As your first action, reveal cards from the deck until you have revealed a card with an asteroid icon on it. Take it into hand and discard the rest.',
         renderData: CardRenderer.builder((b) => {
-          b.br;
-          b.megacredits(35).nbsp.asteroids(3, {digit});
+          b.megacredits(40).nbsp.asteroids(4, {digit}).nbsp.cards(1, {secondaryTag: AltSecondaryTag.WILD_RESOURCE});;
           b.corpBox('action', (ce) => {
-            ce.vSpace(Size.LARGE);
+            ce.vSpace(Size.SMALL);
             ce.action(undefined, (eb) => {
               eb.empty().startAction.asteroids(1).asterix().slash().wild(1).or();
             });
@@ -52,6 +53,13 @@ export class Astrodrill extends Card implements IActionCard, ICorporationCard {
 
   public canAct(): boolean {
     return true;
+  }
+
+  public initialAction(player: Player) {
+    player.drawCard(1, {
+      include: (card) => card.resourceType === CardResource.ASTEROID,
+    });
+    return undefined;
   }
 
   public action(player: Player) {

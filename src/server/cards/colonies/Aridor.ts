@@ -17,16 +17,22 @@ export class Aridor extends Card implements ICorporationCard {
   constructor() {
     super({
       name: CardName.ARIDOR,
-      startingMegaCredits: 40,
+      tags: [Tag.SPACE],
+      startingMegaCredits: 34,
       cardType: CardType.CORPORATION,
       initialActionText: 'Add a colony tile',
 
+      //For space tag on corp
+      behavior: {
+        production: {megacredits: 1},
+      },
+
       metadata: {
         cardNumber: 'R20',
-        description: 'You start with 40 M€. As your first action, put an additional Colony Tile of your choice into play',
+        description: 'You start with 34 M€. As your first action, put an additional Colony Tile of your choice into play, and build a colony on it for free if possible.',
         renderData: CardRenderer.builder((b) => {
-          b.br.br;
-          b.megacredits(40).nbsp.placeColony();
+          b.br;
+          b.megacredits(34).nbsp.placeColony().nbsp.colonies(1);
           b.corpBox('effect', (ce) => {
             ce.effect('When you get a new type of tag in play [event cards do not count], increase your M€ production 1 step.', (eb) => {
               eb.diverseTag().startEffect.production((pb) => pb.megacredits(1));
@@ -48,6 +54,9 @@ export class Aridor extends Card implements ICorporationCard {
         game.log('${0} added a new Colony tile: ${1}', (b) => b.player(player).colony(colony));
         this.checkActivation(colony, game);
         // TODO(kberg): remove this colony from discarded?
+        if (colony.isActive) {
+          colony.addColony(player);
+        }
       } else {
         throw new Error(`Colony ${colony.name} is not a discarded colony`);
       }

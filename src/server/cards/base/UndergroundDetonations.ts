@@ -20,18 +20,18 @@ export class UndergroundDetonations extends Card implements IActionCard, IProjec
       metadata: {
         cardNumber: '202',
         renderData: CardRenderer.builder((b) => {
-          b.action('Spend 10M€ to increase your heat production 2 steps.', (eb) => {
-            eb.megacredits(10).startAction.production((pb)=>pb.heat(2));
+          b.action('Spend 8M€ to increase your heat production 2 steps. STEEL MAY BE USED as if playing a building card.', (eb) => {
+            eb.megacredits(8).openBrackets.steel(1).closeBrackets.startAction.production((pb)=>pb.heat(2));
           });
         }),
       },
     });
   }
   public canAct(player: Player): boolean {
-    return player.canAfford(10);
+    return player.canAfford(8, {steel: true});
   }
   public action(player: Player) {
-    player.game.defer(new SelectPaymentDeferred(player, 10, {title: 'Select how to pay for action'}));
+    player.game.defer(new SelectPaymentDeferred(player, 8, {canUseSteel: true, title: 'Select how to pay for action'}));
     player.production.add(Resources.HEAT, 2);
     return undefined;
   }
