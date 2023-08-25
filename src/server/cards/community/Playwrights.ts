@@ -120,6 +120,7 @@ export class Playwrights extends Card implements ICorporationCard {
           return card.cardType === CardType.EVENT &&
           // Can player.canPlay(card) replace this?
           player.canAfford(player.getCardCost(card), {
+            titanium: true,
             reserveUnits: MoonExpansion.adjustedReserveCosts(player, card),
           }) && player.canPlayIgnoringCost(card);
         }));
