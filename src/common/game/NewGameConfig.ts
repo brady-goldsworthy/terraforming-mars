@@ -47,6 +47,7 @@ export interface NewGameConfig {
   // turmoilExtension: boolean;
   promoCardsOption: boolean;
   communityCardsOption: boolean;
+  pathfindersCardsOnlyOption: boolean;
   aresExtension: boolean;
   // aresHazards: boolean;
   politicalAgendasExtension: AgendaStyle;

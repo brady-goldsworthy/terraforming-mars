@@ -79,6 +79,12 @@
                                 <span v-i18n>Community</span>&nbsp;<a href="https://github.com/terraforming-mars/terraforming-mars/wiki/Variants#community" class="tooltip" target="_blank">&#9432;</a>
                             </label>
 
+                            <input type="checkbox" name="pathfindersCardsOnly" id="pathfindersCardsOnly-checkbox" v-model="pathfindersCardsOnlyOption">
+                            <label for="pathfindersCardsOnly-checkbox" class="expansion-button">
+                                <div class="create-game-expansion-icon expansion-icon-pathfinders"></div>
+                                <span v-i18n>Pathfinders Cards Only</span>&nbsp;<a href="https://github.com/terraforming-mars/terraforming-mars/wiki/Variants#community" class="tooltip" target="_blank">&#9432;</a>
+                            </label>
+
                             <input type="checkbox" name="themoon" id="themoon-checkbox" v-model="moonExpansion">
                             <label for="themoon-checkbox" class="expansion-button">
                                 <div class="create-game-expansion-icon expansion-icon-themoon"></div>
@@ -511,6 +517,7 @@ export interface CreateGameModel {
     shuffleMapOption: boolean;
     promoCardsOption: boolean;
     communityCardsOption: boolean;
+    pathfindersCardsOnlyOption: boolean;
     aresExtension: boolean;
     politicalAgendasExtension: AgendaStyle;
     moonExpansion: boolean;
@@ -599,6 +606,7 @@ export default (Vue as WithRefs<Refs>).extend({
       shuffleMapOption: false,
       promoCardsOption: false,
       communityCardsOption: false,
+      pathfindersCardsOnlyOption: false,
       aresExtension: false,
       politicalAgendasExtension: AgendaStyle.STANDARD,
       moonExpansion: false,
@@ -866,6 +874,7 @@ export default (Vue as WithRefs<Refs>).extend({
       case 'prelude': return this.$data.prelude;
       case 'turmoil': return this.$data.turmoil;
       case 'community': return this.$data.communityCardsOption;
+      case 'pathfindersCardsOnly': return this.$data.pathfindersCardsOnlyOption;
       case 'ares': return this.$data.aresExtension;
       case 'moon': return this.$data.moonExpansion;
       case 'pathfinders': return this.$data.pathfindersExpansion;
@@ -952,6 +961,7 @@ export default (Vue as WithRefs<Refs>).extend({
       const seed = component.seed;
       const promoCardsOption = component.promoCardsOption;
       const communityCardsOption = component.communityCardsOption;
+      const pathfindersCardsOnlyOption = component.pathfindersCardsOnlyOption;
       const aresExtension = component.aresExtension;
       const politicalAgendasExtension = this.politicalAgendasExtension;
       const moonExpansion = component.moonExpansion;
@@ -1108,6 +1118,7 @@ export default (Vue as WithRefs<Refs>).extend({
         solarPhaseOption,
         promoCardsOption,
         communityCardsOption,
+        pathfindersCardsOnlyOption,
         aresExtension: aresExtension,
         politicalAgendasExtension: politicalAgendasExtension,
         moonExpansion: moonExpansion,

@@ -102,6 +102,7 @@ export class GameHandler extends Handler {
             pathfindersExpansion: gameReq.pathfindersExpansion,
             promoCardsOption: gameReq.promoCardsOption,
             communityCardsOption: gameReq.communityCardsOption,
+            pathfindersCardsOnlyOption: gameReq.pathfindersCardsOnlyOption,
             solarPhaseOption: gameReq.solarPhaseOption,
             removeNegativeGlobalEventsOption: gameReq.removeNegativeGlobalEventsOption,
             includeVenusMA: gameReq.includeVenusMA,

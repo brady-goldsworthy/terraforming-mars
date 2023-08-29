@@ -178,6 +178,7 @@ export default Vue.extend({
       case 'ares': return 'Ares';
       case 'moon': return 'The Moon';
       case 'pathfinders': return 'Pathfinders';
+      case 'pathfindersCardsOnly': return 'Bonus Cards';
       }
     },
   },
@@ -211,6 +212,9 @@ export default Vue.extend({
     },
     pathfindersExpansion(enabled) {
       this.watchSelect('pathfinders', enabled);
+    },
+    pathfindersCardsOnly(enabled) {
+      this.watchSelect('pathfindersCardsOnly', enabled);
     },
   },
 });

@@ -188,10 +188,11 @@ const moduleAbbreviations: Record<GameModule, string> = {
   ares: 'a',
   moon: 'm',
   pathfinders: 'P',
+  pathfindersCardsOnly: 'o'
 };
 
 // TODO(kberg): make this  use suffixModules.
-const ALL_MODULES = 'bcpvCt*ramP';
+const ALL_MODULES = 'bcpvCt*ramPo';
 
 type TypeOptions = CardType | 'colonyTiles' | 'globalEvents' | 'milestones' | 'awards';
 type TagOptions = Tag | 'none';
@@ -285,6 +286,7 @@ export default Vue.extend({
         moon: true,
         promo: true,
         pathfinders: true,
+        pathfindersCardsOnly: true
       },
       types: {
         event: true,
@@ -468,6 +470,7 @@ export default Vue.extend({
       case 'community': return 'Community';
       case 'moon': return 'The Moon';
       case 'pathfinders': return 'Pathfinders';
+      case 'pathfindersCardsOnly': return 'pathfindersCardsOnly';
       }
     },
     filterByTags(card: ClientCard): boolean {

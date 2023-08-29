@@ -19,6 +19,7 @@ import {IProjectCard} from './cards/IProjectCard';
 import {IStandardProjectCard} from './cards/IStandardProjectCard';
 import {CardFinder} from './CardFinder';
 import {IPreludeCard} from './cards/prelude/IPreludeCard';
+import { PATHFINDERS_CARDS_ONLY_MANIFEST } from './cards/bonusCards/PathfindersCardsOnlyManifest';
 
 /**
  * Returns the cards available to a game based on its `GameOptions`.
@@ -53,6 +54,7 @@ export class GameCards {
       [gameOptions.communityCardsOption, COMMUNITY_CARD_MANIFEST],
       [gameOptions.moonExpansion, MOON_CARD_MANIFEST],
       [gameOptions.pathfindersExpansion, PATHFINDERS_CARD_MANIFEST],
+      [gameOptions.pathfindersCardsOnlyOption, PATHFINDERS_CARDS_ONLY_MANIFEST]
     ];
 
     this.moduleManifests = manifests.filter((a) => a[0]).map((a) => a[1]);

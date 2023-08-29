@@ -24,6 +24,7 @@ export type GameOptions = {
   turmoilExtension: boolean;
   promoCardsOption: boolean;
   communityCardsOption: boolean;
+  pathfindersCardsOnlyOption: boolean;
   aresExtension: boolean;
   aresHazards: boolean;
   politicalAgendasExtension: AgendaStyle;
@@ -66,6 +67,7 @@ export const DEFAULT_GAME_OPTIONS: GameOptions = {
   clonedGamedId: undefined,
   coloniesExtension: false,
   communityCardsOption: false,
+  pathfindersCardsOnlyOption: false,
   corporateEra: true,
   corporationsDraft: false,
   customColoniesList: [],
