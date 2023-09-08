@@ -15,11 +15,11 @@ export class RobinsonIndustries extends Card implements IActionCard, ICorporatio
       cardType: CardType.CORPORATION,
       name: CardName.ROBINSON_INDUSTRIES,
       startingMegaCredits: 47,
-      initialActionText: 'Increase production two steps',
+      initialActionText: 'Increase any production two steps',
 
       metadata: {
         cardNumber: 'R27',
-        description: 'You start with 47 M€.',
+        description: 'You start with 47 M€. As your first action increase any production two steps.',
         renderData: CardRenderer.builder((b) => {
           b.br.br.br;
           b.megacredits(47);
@@ -32,8 +32,8 @@ export class RobinsonIndustries extends Card implements IActionCard, ICorporatio
       },
     });
   }
-  public canAct(player: Player): boolean {
-    return player.canAfford(4);
+  public canAct(_player: Player): boolean {
+    return true;
   }
 
   public initialAction(player: Player) {

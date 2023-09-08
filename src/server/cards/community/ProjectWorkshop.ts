@@ -47,8 +47,8 @@ export class ProjectWorkshop extends Card implements ICorporationCard {
               eb.cards(2, {digit});
             });
             cb.vSpace(Size.SMALL);
-            cb.action('Flip and discard a played blue card to convert any VP on it into TR and draw 2 cards, or spend 3 M€ to draw a blue card.', (eb) => {
-              eb.or().megacredits(3).startAction.cards(1, {secondaryTag: AltSecondaryTag.BLUE});
+            cb.action('Flip and discard a played blue card to convert any VP on it into TR and draw 2 cards, or spend 1 M€ to draw a blue card.', (eb) => {
+              eb.or().megacredits(1).startAction.cards(1, {secondaryTag: AltSecondaryTag.BLUE});
             });
           });
         }),
@@ -67,7 +67,7 @@ export class ProjectWorkshop extends Card implements ICorporationCard {
   }
 
   public canAct(player: Player): boolean {
-    if (player.canAfford(3)) return true;
+    if (player.canAfford(1)) return true;
     return this.getEligibleCards(player).length > 0;
   }
 
@@ -99,9 +99,9 @@ export class ProjectWorkshop extends Card implements ICorporationCard {
       },
     );
 
-    const drawBlueCard = new SelectOption('Spend 3 M€ to draw a blue card', 'Draw card', () => {
+    const drawBlueCard = new SelectOption('Spend 1 M€ to draw a blue card', 'Draw card', () => {
       player.payMegacreditsDeferred(
-        3,
+        1,
         'Select how to pay for Project Workshop action.',
         () => player.drawCard(1, {cardType: CardType.ACTIVE}));
       return undefined;

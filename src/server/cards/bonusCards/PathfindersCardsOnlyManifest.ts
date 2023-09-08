@@ -23,7 +23,6 @@ import { OzoneGenerators } from '../pathfinders/OzoneGenerators';
 import { Pollinators } from '../pathfinders/Pollinators';
 import { PowerPlant } from '../pathfinders/PowerPlant';
 import { PrefabricationofHumanHabitats } from '../pathfinders/PrefabricationofHumanHabitats';
-import { PrivateSecurity } from '../pathfinders/PrivateSecurity';
 import { RareEarthElements } from '../pathfinders/RareEarthElements';
 import { RichDeposits } from '../pathfinders/RichDeposits';
 import { SecretLabs } from '../pathfinders/SecretLabs';
@@ -56,7 +55,6 @@ export const PATHFINDERS_CARDS_ONLY_MANIFEST = new ModuleManifest({
     [CardName.POLLINATORS]: {Factory: Pollinators},
     [CardName.POWER_PLANT_PATHFINDERS]: {Factory: PowerPlant},
     [CardName.PREFABRICATION_OF_HUMAN_HABITATS]: {Factory: PrefabricationofHumanHabitats},
-    [CardName.PRIVATE_SECURITY]: {Factory: PrivateSecurity},
     [CardName.RARE_EARTH_ELEMENTS]: {Factory: RareEarthElements},
     [CardName.RICH_DEPOSITS]: {Factory: RichDeposits},
     [CardName.SECRET_LABS]: {Factory: SecretLabs},

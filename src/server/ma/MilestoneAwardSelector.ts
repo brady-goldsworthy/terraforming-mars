@@ -1,4 +1,4 @@
-import {AMAZONIS_PLANITIA_AWARDS, ARABIA_TERRA_AWARDS, ARES_AWARDS, Awards, ELYSIUM_AWARDS, HELLAS_AWARDS, MOON_AWARDS, THARSIS_AWARDS, TERRA_CIMMERIA_AWARDS, VASTITAS_BOREALIS_AWARDS, VENUS_AWARDS} from '../awards/Awards';
+import {AMAZONIS_PLANITIA_AWARDS, ARABIA_TERRA_AWARDS, ARES_AWARDS, Awards, ELYSIUM_AWARDS, HELLAS_AWARDS, MOON_AWARDS, THARSIS_AWARDS, TERRA_CIMMERIA_AWARDS, VASTITAS_BOREALIS_AWARDS, VENUS_AWARDS, BANNED_AWARDS} from '../awards/Awards';
 import {IAward} from '../awards/IAward';
 import {BoardName} from '../../common/boards/BoardName';
 import {GameOptions} from '../GameOptions';
@@ -193,6 +193,11 @@ function getRandomMilestonesAndAwards(gameOptions: GameOptions,
     [...BANNED_MILESTONES].map(toName).forEach(milestone => {
       inplaceRemove(candidateMilestones, milestone);
       console.log("Removed banned milestone: ", milestone);
+    });
+
+    [...BANNED_AWARDS].map(toName).forEach(award => {
+      inplaceRemove(candidateAwards, award);
+      console.log("Removed banned award: ", award);
     });
   }
 

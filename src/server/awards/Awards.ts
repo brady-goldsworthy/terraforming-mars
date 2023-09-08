@@ -121,6 +121,11 @@ export const ALL_AWARDS: Array<IAward> = [
   ...VASTITAS_BOREALIS_AWARDS,
 ];
 
+export const BANNED_AWARDS: Array<IAward> = [
+  new CosmicSettler(),
+  new Coordinator()
+];
+
 export namespace Awards {
   export const ALL = ALL_AWARDS;
 
