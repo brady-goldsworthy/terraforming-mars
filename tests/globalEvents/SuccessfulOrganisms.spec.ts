@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {Game} from '../../src/server/Game';
-import {Resources} from '../../src/common/Resources';
+import {Resource} from '../../src/common/Resource';
 import {SuccessfulOrganisms} from '../../src/server/turmoil/globalEvents/SuccessfulOrganisms';
 import {Kelvinists} from '../../src/server/turmoil/parties/Kelvinists';
 import {Turmoil} from '../../src/server/turmoil/Turmoil';
@@ -21,11 +21,11 @@ describe('SuccessfulOrganisms', function() {
     turmoil.dominantParty.delegates.add(player2.id);
     turmoil.dominantParty.delegates.add(player2.id);
 
-    player.production.add(Resources.PLANTS, 3);
-    player2.production.add(Resources.PLANTS, 3);
+    player.production.add(Resource.PLANTS, 3);
+    player2.production.add(Resource.PLANTS, 3);
 
     card.resolve(game, turmoil);
-    expect(player.getResource(Resources.PLANTS)).to.eq(3);
-    expect(player2.getResource(Resources.PLANTS)).to.eq(6);
+    expect(player.plants).to.eq(3);
+    expect(player2.plants).to.eq(6);
   });
 });

@@ -1,22 +1,10 @@
 import {expect} from 'chai';
 import {SpaceBonus} from '../../src/common/boards/SpaceBonus';
-import {Player} from '../../src/server/Player';
-import {Resources} from '../../src/common/Resources';
+import {IPlayer} from '../../src/server/IPlayer';
 import {SpaceType} from '../../src/common/boards/SpaceType';
 import {TileType} from '../../src/common/TileType';
-import {ISpace} from '../../src/server/boards/ISpace';
-import {testGameOptions} from '../TestingUtils';
+import {Space} from '../../src/server/boards/Space';
 import {AresHandler} from '../../src/server/ares/AresHandler';
-
-export const ARES_OPTIONS_NO_HAZARDS = testGameOptions({
-  aresExtension: true,
-  aresHazards: false,
-});
-
-export const ARES_OPTIONS_WITH_HAZARDS = testGameOptions({
-  aresExtension: true,
-  aresHazards: true,
-});
 
 export const ALL_ADJACENCY_BONUSES = [
   SpaceBonus.TITANIUM,
@@ -32,25 +20,25 @@ export const ALL_ADJACENCY_BONUSES = [
 
 export class AresTestHelper {
   // provides shared testing between Ecological Survey and Geological Survey
-  public static testSurveyBonus(player: Player, bonus: SpaceBonus, expectedMc: number) {
+  public static testSurveyBonus(player: IPlayer, bonus: SpaceBonus, expectedMc: number) {
     // tile types in this test are irrelevant.
     const firstSpace = player.game.board.getAvailableSpacesOnLand(player)[0];
     firstSpace.adjacency = {bonus: [bonus]};
     player.game.addTile(player, firstSpace, {tileType: TileType.RESTRICTED_AREA});
 
-    expect(player.getResource(Resources.MEGACREDITS)).is.eq(0);
+    expect(player.megaCredits).is.eq(0);
     const adjacentSpace = player.game.board.getAdjacentSpaces(firstSpace)[0];
     player.game.addTile(player, adjacentSpace, {tileType: TileType.GREENERY});
-    expect(player.getResource(Resources.MEGACREDITS)).is.eq(expectedMc);
+    expect(player.megaCredits).is.eq(expectedMc);
   }
 
-  public static getHazards(player: Player): Array<ISpace> {
+  public static getHazards(player: IPlayer): Array<Space> {
     return player.game.board.getSpaces(SpaceType.LAND, player).filter((space) => AresHandler.hasHazardTile(space));
   }
 
-  public static byTileType(spaces: Array<ISpace>): Map<number, Array<ISpace>> {
+  public static byTileType(spaces: Array<Space>): Map<number, Array<Space>> {
     // Got a better way to initialize this? LMK.
-    const map: Map<number, Array<ISpace>> = new Map([
+    const map: Map<number, Array<Space>> = new Map([
       [TileType.GREENERY, []],
       [TileType.OCEAN, []],
       [TileType.CITY, []],

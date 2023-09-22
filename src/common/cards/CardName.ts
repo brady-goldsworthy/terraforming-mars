@@ -433,6 +433,15 @@ export enum CardName {
     WILDLIFE_DOME = 'Wildlife Dome',
     VOTE_OF_NO_CONFIDENCE = 'Vote Of No Confidence',
 
+    // Prelude 2 Project Cards
+    ISHTAR_EXPEDITION = 'Ishtar Expedition',
+
+    // Prelude 2 Preludes
+    APPLIED_SCIENCE = 'Applied Science',
+
+    // Prelude 2 Corps
+    NIGRAL_ENTERPRISES = 'Nigral Enterprises',
+
     // Promo cards
     DUSK_LASER_MINING = 'Dusk Laser Mining',
     PROJECT_INSPECTION = 'Project Inspection',
@@ -475,6 +484,21 @@ export enum CardName {
     MERGER = 'Merger',
     CORPORATE_ARCHIVES = 'Corporate Archives',
     DOUBLE_DOWN = 'Double Down',
+    PSYCHE = '16 Psyche',
+    ROBOT_POLLINATORS = 'Robot Pollinators',
+    HEAD_START = 'Head Start',
+    SUPERCAPACITORS = 'Supercapacitors',
+    DIRECTED_HEAT_USAGE = 'Directed Heat Usage',
+    ANTI_DESERTIFICATION_TECHNIQUES = 'Anti-desertification Techniques',
+    TYCHO_MAGNETICS = 'Tycho Magnetics',
+    AQUEDUCT_SYSTEMS = 'Aqueduct Systems',
+    ASTRA_MECHANICA = 'Astra Mechanica',
+    ST_JOSEPH_OF_CUPERTINO_MISSION = 'St. Joseph of Cupertino Mission',
+    CARBON_NANOSYSTEMS = 'Carbon Nanosystems',
+    CYBERIA_SYSTEMS = 'Cyberia Systems',
+    GIANT_SOLAR_COLLECTOR = 'Giant Solar Collector',
+    HERMETIC_ORDER_OF_MARS = 'Hermetic Order of Mars',
+    HOMEOSTASIS_BUREAU = 'Homeostasis Bureau',
 
     // Community corps
     AGRICOLA_INC = 'Agricola Inc',
@@ -499,18 +523,24 @@ export enum CardName {
     // Community colonies
     SCIENCE_TAG_BLANK_CARD = '',
 
+    // For Playwright.
+    SPECIAL_DESIGN_PROXY = 'Special Design:proxy',
+
     // Ares expansion.
     BIOENGINEERING_ENCLOSURE = 'Bioengineering Enclosure',
     BIOFERTILIZER_FACILITY = 'Bio-Fertilizer Facility',
     BUTTERFLY_EFFECT = 'Butterfly Effect',
     CAPITAL_ARES = 'Capital:ares',
     COMMERCIAL_DISTRICT_ARES = 'Commercial District:ares',
+    DEIMOS_DOWN_ARES = 'Deimos Down:ares',
     DESPERATE_MEASURES = 'Desperate Measures',
     ECOLOGICAL_SURVEY = 'Ecological Survey',
     ECOLOGICAL_ZONE_ARES = 'Ecological Zone:ares',
     GEOLOGICAL_SURVEY = 'Geological Survey',
+    GREAT_DAM_ARES = 'Great Dam:ares',
     INDUSTRIAL_CENTER_ARES = 'Industrial Center:ares',
     LAVA_FLOWS_ARES = 'Lava Flows:ares',
+    MAGNETIC_FIELD_GENERATORS_ARES = 'Magnetic Field Generators:ares',
     MARKETING_EXPERTS = 'Marketing Experts',
     METALLIC_ASTEROID = 'Metallic Asteroid',
     MINING_AREA_ARES = 'Mining Area:ares',
@@ -728,7 +758,6 @@ export enum CardName {
     VITAL_COLONY = 'Vital Colony',
     STRATEGIC_BASE_PLANNING = 'Strategic Base Planning',
     DEEP_SPACE_OPERATIONS = 'Deep Space Operations',
-    ANTI_DESERTIFICATION_TECHNIQUES = 'Anti-desertification Techniques',
     EXPERIENCED_MARTIANS = 'Experienced Martians',
     THE_NEW_SPACE_RACE = 'The New Space Race',
 
@@ -756,4 +785,45 @@ export enum CardName {
     HABITAT_MARTE = 'Habitat Marte',
     ADHAI_HIGH_ORBIT_CONSTRUCTIONS = 'Adhai High Orbit Constructions',
     OUT_OF_THIS_WORLD = 'Out Of This World',
+
+    // CEOs
+    ASIMOV = 'Asimov',
+    BJORN = 'Bjorn',
+    CLARKE = 'Clarke',
+    DUNCAN = 'Duncan',
+    ENDER = 'Ender',
+    FLOYD = 'Floyd',
+    GORDON = 'Gordon',
+    GRETA = 'Greta',
+    HAL9000 = 'HAL 9000',
+    INGRID = 'Ingrid',
+    JANSSON = 'Jansson',
+    KAREN = 'Karen',
+    LOWELL = 'Lowell',
+    MUSK = 'Musk',
+    MARIA = 'Maria',
+    NAOMI = 'Naomi',
+    OSCAR = 'Oscar',
+    PETRA = 'Petra',
+    QUILL = 'Quill',
+    ROGERS = 'Rogers',
+    STEFAN = 'Stefan',
+    TATE = 'Tate',
+    ULRICH = 'Ulrich',
+    VANALLEN = 'Van Allen',
+    WILL = 'Will',
+    XAVIER = 'Xavier',
+    YVONNE = 'Yvonne',
+    ZAN = 'Zan',
+    APOLLO = 'Apollo',
+    CAESAR = 'Caesar',
+    FARADAY = 'Faraday',
+    GAIA = 'Gaia',
+    HUAN = 'Huan',
+    NEIL = 'Neil',
+    RYU = 'Ryu',
+    SHARA = 'Shara',
+    XU = 'Xu',
+    // CEO Preludes
+    CO_LEADERSHIP = 'Co-leadership',
 }

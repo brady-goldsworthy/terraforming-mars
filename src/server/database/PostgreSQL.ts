@@ -1,11 +1,12 @@
 import {IDatabase} from './IDatabase';
-import {Game, Score} from '../Game';
-import {GameOptions} from '../GameOptions';
-import {GameId, PlayerId, SpectatorId} from '../../common/Types';
+import {IGame, Score} from '../IGame';
+import {GameOptions} from '../game/GameOptions';
+import {GameId, ParticipantId} from '../../common/Types';
 import {SerializedGame} from '../SerializedGame';
-import {Pool, ClientConfig} from 'pg';
-import {daysAgoToSeconds} from './utils.ts';
+import {Pool, ClientConfig, QueryResult} from 'pg';
+import {daysAgoToSeconds} from './utils';
 import {GameIdLedger} from './IDatabase';
+import {difference} from '../../common/utils/utils';
 
 export class PostgreSQL implements IDatabase {
   protected client: Pool;
@@ -22,7 +23,7 @@ export class PostgreSQL implements IDatabase {
     config: ClientConfig = {
       connectionString: process.env.POSTGRES_HOST,
     }) {
-    if (config.connectionString !== undefined && config.connectionString.startsWith('postgres')) {
+    if (config.connectionString?.startsWith('postgres')) {
       config.ssl = {
         // heroku uses self-signed certificates
         rejectUnauthorized: false,
@@ -47,18 +48,20 @@ export class PostgreSQL implements IDatabase {
     await this.client.query('CREATE TABLE IF NOT EXISTS games(game_id varchar, players integer, save_id integer, game text, status text default \'running\', created_time timestamp default now(), PRIMARY KEY (game_id, save_id))');
     await this.client.query('CREATE TABLE IF NOT EXISTS participants(game_id varchar, participants varchar[], PRIMARY KEY (game_id))');
     await this.client.query('CREATE TABLE IF NOT EXISTS game_results(game_id varchar not null, seed_game_id varchar, players integer, generations integer, game_options text, scores text, PRIMARY KEY (game_id))');
+    await this.client.query('CREATE TABLE IF NOT EXISTS completed_game(game_id varchar not null, completed_time timestamp default now(), PRIMARY KEY (game_id))');
 
     await this.client.query('CREATE INDEX IF NOT EXISTS games_i1 on games(save_id)');
     await this.client.query('CREATE INDEX IF NOT EXISTS games_i2 on games(created_time)');
     await this.client.query('CREATE INDEX IF NOT EXISTS participants_idx_ids on participants USING GIN (participants)');
+    await this.client.query('CREATE INDEX IF NOT EXISTS completed_game_idx_completed_time on completed_game(completed_time)');
   }
 
-  public async getPlayerCount(game_id: GameId): Promise<number> {
+  public async getPlayerCount(gameId: GameId): Promise<number> {
     const sql = 'SELECT players FROM games WHERE save_id = 0 AND game_id = $1 LIMIT 1';
 
-    const res = await this.client.query(sql, [game_id]);
+    const res = await this.client.query(sql, [gameId]);
     if (res.rows.length === 0) {
-      throw new Error(`no rows found for game id ${game_id}`);
+      throw new Error(`no rows found for game id ${gameId}`);
     }
     return res.rows[0].players;
   }
@@ -79,25 +82,25 @@ export class PostgreSQL implements IDatabase {
     return res.rows.map((row) => row.game_id);
   }
 
-  public loadCloneableGame(game_id: GameId): Promise<SerializedGame> {
-    return this.getGameVersion(game_id, 0);
+  public loadCloneableGame(gameId: GameId): Promise<SerializedGame> {
+    return this.getGameVersion(gameId, 0);
   }
 
-  public async getGame(game_id: GameId): Promise<SerializedGame> {
+  public async getGame(gameId: GameId): Promise<SerializedGame> {
     // Retrieve last save from database
-    const res = await this.client.query('SELECT game game FROM games WHERE game_id = $1 ORDER BY save_id DESC LIMIT 1', [game_id]);
+    const res = await this.client.query('SELECT game game FROM games WHERE game_id = $1 ORDER BY save_id DESC LIMIT 1', [gameId]);
     if (res.rows.length === 0 || res.rows[0] === undefined) {
-      throw new Error(`Game ${game_id} not found`);
+      throw new Error(`Game ${gameId} not found`);
     }
     const json = JSON.parse(res.rows[0].game);
     return json;
   }
 
-  public async getGameId(id: string): Promise<GameId> {
+  public async getGameId(participantId: ParticipantId): Promise<GameId> {
     try {
-      const res = await this.client.query('select game_id from participants where $1 = ANY(participants)', [id]);
+      const res = await this.client.query('select game_id from participants where $1 = ANY(participants)', [participantId]);
       if (res.rowCount === 0) {
-        throw new Error(`Game for player id ${id} not found`);
+        throw new Error(`Game for player id ${participantId} not found`);
       }
       return res.rows[0].game_id;
     } catch (err) {
@@ -115,16 +118,16 @@ export class PostgreSQL implements IDatabase {
     return Promise.resolve(allSaveIds);
   }
 
-  async getGameVersion(game_id: GameId, save_id: number): Promise<SerializedGame> {
-    const res = await this.client.query('SELECT game game FROM games WHERE game_id = $1 and save_id = $2', [game_id, save_id]);
+  async getGameVersion(gameId: GameId, saveId: number): Promise<SerializedGame> {
+    const res = await this.client.query('SELECT game game FROM games WHERE game_id = $1 and save_id = $2', [gameId, saveId]);
     if (res.rowCount === 0) {
-      throw new Error(`Game ${game_id} not found at save_id ${save_id}`);
+      throw new Error(`Game ${gameId} not found at save_id ${saveId}`);
     }
     return JSON.parse(res.rows[0].game);
   }
 
-  saveGameResults(game_id: GameId, players: number, generations: number, gameOptions: GameOptions, scores: Array<Score>): void {
-    this.client.query('INSERT INTO game_results (game_id, seed_game_id, players, generations, game_options, scores) VALUES($1, $2, $3, $4, $5, $6)', [game_id, gameOptions.clonedGamedId, players, generations, gameOptions, JSON.stringify(scores)], (err) => {
+  saveGameResults(gameId: GameId, players: number, generations: number, gameOptions: GameOptions, scores: Array<Score>): void {
+    this.client.query('INSERT INTO game_results (game_id, seed_game_id, players, generations, game_options, scores) VALUES($1, $2, $3, $4, $5, $6)', [gameId, gameOptions.clonedGamedId, players, generations, gameOptions, JSON.stringify(scores)], (err) => {
       if (err) {
         console.error('PostgreSQL:saveGameResults', err);
         throw err;
@@ -132,8 +135,8 @@ export class PostgreSQL implements IDatabase {
     });
   }
 
-  async getMaxSaveId(game_id: GameId): Promise<number> {
-    const res = await this.client.query('SELECT MAX(save_id) as save_id FROM games WHERE game_id = $1', [game_id]);
+  async getMaxSaveId(gameId: GameId): Promise<number> {
+    const res = await this.client.query('SELECT MAX(save_id) as save_id FROM games WHERE game_id = $1', [gameId]);
     return res.rows[0].save_id;
   }
 
@@ -144,49 +147,58 @@ export class PostgreSQL implements IDatabase {
     }
   }
 
-  async cleanGame(game_id: GameId): Promise<void> {
-    const maxSaveId = await this.getMaxSaveId(game_id);
-    // DELETE all saves except initial and last one
-    const delete1 = this.client.query('DELETE FROM games WHERE game_id = $1 AND save_id < $2 AND save_id > 0', [game_id, maxSaveId]);
-    // Flag game as finished
-    const delete2 = this.client.query('UPDATE games SET status = \'finished\' WHERE game_id = $1', [game_id]);
-    // Purge after setting the status as finished so it does not delete the game.
-    const delete3 = this.purgeUnfinishedGames();
-    await Promise.all([delete1, delete2, delete3]);
+  async markFinished(gameId: GameId): Promise<void> {
+    const promise1 = this.client.query('UPDATE games SET status = \'finished\' WHERE game_id = $1', [gameId]);
+    const promise2 = this.client.query('INSERT INTO completed_game(game_id) VALUES ($1)', [gameId]);
+    await Promise.all([promise1, promise2]);
   }
 
   // Purge unfinished games older than MAX_GAME_DAYS days. If this environment variable is absent, it uses the default of 10 days.
-  async purgeUnfinishedGames(maxGameDays: string | undefined = process.env.MAX_GAME_DAYS): Promise<void> {
-    if (maxGameDays) {
-      const dateToSeconds = daysAgoToSeconds(maxGameDays, 10);
-      const selectResult = await this.client.query('SELECT DISTINCT game_id FROM games WHERE created_time < $1', [dateToSeconds]);
-      const gameIds = selectResult.rows.map((row) => row.game_id);
-      const deleteGamesResult = await this.client.query('DELETE FROM games WHERE game_id in ANY($1)', [gameIds]);
-      console.log(`Purged ${deleteGamesResult.rowCount} rows from games`);
-      const deleteParticipantsResult = await this.client.query('DELETE FROM participants WHERE game_id in ANY($1)', [gameIds]);
-      console.log(`Purged ${deleteParticipantsResult.rowCount} rows from participants`);
+  async purgeUnfinishedGames(maxGameDays: string | undefined = process.env.MAX_GAME_DAYS): Promise<Array<GameId>> {
+    const dateToSeconds = daysAgoToSeconds(maxGameDays, 10);
+    const selectResult = await this.client.query('SELECT DISTINCT game_id FROM games WHERE created_time < to_timestamp($1)', [dateToSeconds]);
+    const gameIds = selectResult.rows.slice(0, 1000).map((row) => row.game_id);
+    console.log(`${gameIds.length} games to be purged.`);
+    if (gameIds.length > 1000) {
+      gameIds.length = 1000;
+      console.log('Truncated purge to 1000 games.');
+    }
+    // https://github.com/brianc/node-postgres/wiki/FAQ#11-how-do-i-build-a-where-foo-in--query-to-find-rows-matching-an-array-of-values
+    const deleteGamesResult = await this.client.query('DELETE FROM games WHERE game_id = ANY($1)', [gameIds]);
+    console.log(`Purged ${deleteGamesResult.rowCount} rows from games`);
+    const deleteParticipantsResult = await this.client.query('DELETE FROM participants WHERE game_id = ANY($1)', [gameIds]);
+    console.log(`Purged ${deleteParticipantsResult.rowCount} rows from participants`);
+    return gameIds;
+  }
+
+
+  async compressCompletedGames(compressCompletedGamesDays: string | undefined = process.env.COMPRESS_COMPLETED_GAMES_DAYS): Promise<void> {
+    if (compressCompletedGamesDays === undefined) {
+      return;
+    }
+    const dateToSeconds = daysAgoToSeconds(compressCompletedGamesDays, 0);
+    const selectResult = await this.client.query('SELECT DISTINCT game_id FROM completed_game WHERE completed_time < to_timestamp($1)', [dateToSeconds]);
+    const gameIds = selectResult.rows.slice(0, 1000).map((row) => row.game_id);
+    console.log(`${gameIds.length} completed games to be compressed.`);
+    if (gameIds.length > 1000) {
+      gameIds.length = 1000;
+      console.log('Compressing 1000 games.');
+    }
+    for (const gameId of gameIds) {
+      // This isn't using await because nothing really depends on it.
+      this.compressCompletedGame(gameId);
     }
   }
 
-  async restoreGame(game_id: GameId, save_id: number): Promise<SerializedGame> {
-    // Retrieve last save from database
-    logForUndo(game_id, 'restore to', save_id);
-    const res = await this.client.query('SELECT game game FROM games WHERE game_id = $1 AND save_id = $2 ORDER BY save_id DESC LIMIT 1', [game_id, save_id]);
-    if (res.rows.length === 0) {
-      throw new Error(`Game ${game_id} not found`);
-    }
-    try {
-      // Transform string to json
-      const json = JSON.parse(res.rows[0].game);
-      logForUndo(json.id, 'restored to', json.lastSaveId, 'from', save_id);
-      return json;
-    } catch (e) {
-      const error = e instanceof Error ? e : new Error(String(e));
-      throw error;
-    }
+  async compressCompletedGame(gameId: GameId): Promise<QueryResult<any>> {
+    const maxSaveId = await this.getMaxSaveId(gameId);
+    return this.client.query('DELETE FROM games WHERE game_id = $1 AND save_id < $2 AND save_id > 0', [gameId, maxSaveId])
+      .then(() => {
+        return this.client.query('DELETE FROM completed_game where game_id = $1', [gameId]);
+      });
   }
 
-  async saveGame(game: Game): Promise<void> {
+  async saveGame(game: IGame): Promise<void> {
     const gameJSON = game.toJSON();
     this.statistics.saveCount++;
     if (game.gameOptions.undoOption) logForUndo(game.id, 'start save', game.lastSaveId);
@@ -221,7 +233,7 @@ export class PostgreSQL implements IDatabase {
       // when the database operation was an insert. (We should figure out why multiple saves occur and
       // try to stop them. But that's for another day.)
       if (inserted === true && thisSaveId === 0) {
-        const participantIds: Array<PlayerId | SpectatorId> = game.getPlayers().map((p) => p.id);
+        const participantIds: Array<ParticipantId> = game.getPlayers().map((p) => p.id);
         if (game.spectatorId) participantIds.push(game.spectatorId);
         await this.storeParticipants({gameId: game.id, participantIds: participantIds});
       }
@@ -233,30 +245,29 @@ export class PostgreSQL implements IDatabase {
     }
   }
 
-  async deleteGameNbrSaves(game_id: GameId, rollbackCount: number): Promise<void> {
+  async deleteGameNbrSaves(gameId: GameId, rollbackCount: number): Promise<void> {
     if (rollbackCount <= 0) {
-      console.error(`invalid rollback count for ${game_id}: ${rollbackCount}`);
+      console.error(`invalid rollback count for ${gameId}: ${rollbackCount}`);
       // Should this be an error?
       return;
     }
-    logForUndo(game_id, 'deleting', rollbackCount, 'saves');
-    const first = await this.getSaveIds(game_id);
-    const res = await this.client.query('DELETE FROM games WHERE ctid IN (SELECT ctid FROM games WHERE game_id = $1 ORDER BY save_id DESC LIMIT $2)', [game_id, rollbackCount]);
-    logForUndo(game_id, 'deleted', res?.rowCount, 'rows');
-    const second = await this.getSaveIds(game_id);
-    const difference = first.filter((x) => !second.includes(x));
-    logForUndo(game_id, 'second', second);
-    logForUndo(game_id, 'Rollback difference', difference);
+    logForUndo(gameId, 'deleting', rollbackCount, 'saves');
+    const first = await this.getSaveIds(gameId);
+    const res = await this.client.query('DELETE FROM games WHERE ctid IN (SELECT ctid FROM games WHERE game_id = $1 ORDER BY save_id DESC LIMIT $2)', [gameId, rollbackCount]);
+    logForUndo(gameId, 'deleted', res?.rowCount, 'rows');
+    const second = await this.getSaveIds(gameId);
+    logForUndo(gameId, 'second', second);
+    logForUndo(gameId, 'Rollback difference', difference(first, second));
   }
 
   public async storeParticipants(entry: GameIdLedger): Promise<void> {
     await this.client.query('INSERT INTO participants (game_id, participants) VALUES($1, $2)', [entry.gameId, entry.participantIds]);
   }
 
-  public async getParticipants(): Promise<Array<{gameId: GameId, participantIds: Array<PlayerId | SpectatorId>}>> {
+  public async getParticipants(): Promise<Array<{gameId: GameId, participantIds: Array<ParticipantId>}>> {
     const res = await this.client.query('select game_id, participants from participants');
     return res.rows.map((row) => {
-      return {gameId: row.game_id as GameId, participantIds: row.participants as Array<PlayerId | SpectatorId>};
+      return {gameId: row.game_id as GameId, participantIds: row.participants as Array<ParticipantId>};
     });
   }
 
@@ -268,23 +279,37 @@ export class PostgreSQL implements IDatabase {
       'pool-waiting-count': this.client.waitingCount,
       'save-count': this.statistics.saveCount,
       'save-error-count': this.statistics.saveErrorCount,
-      'save-confict-normal-count': this.statistics.saveConflictNormalCount,
-      'save-confict-undo-count': this.statistics.saveConflictUndoCount,
+      'save-conflict-normal-count': this.statistics.saveConflictNormalCount,
+      'save-conflict-undo-count': this.statistics.saveConflictUndoCount,
     };
 
-    // TODO(kberg): return row counts
-    const result = await this.client.query(`
+    const dbsizes = await this.client.query(`
     SELECT
       pg_size_pretty(pg_total_relation_size('games')) as game_size,
-      pg_size_pretty(pg_total_relation_size('game_results')) as game_result_size,
+      pg_size_pretty(pg_total_relation_size('game_results')) as game_results_size,
       pg_size_pretty(pg_total_relation_size('participants')) as participants_size,
       pg_size_pretty(pg_database_size($1)) as db_size
     `, [this.databaseName]);
 
-    map['size-bytes-games'] = result.rows[0].game_size;
-    map['size-bytes-game-results'] = result.rows[0].game_result_size;
-    map['size-bytes-participants'] = result.rows[0].participants;
-    map['size-bytes-database'] = result.rows[0].db_size;
+    map['size-bytes-games'] = dbsizes.rows[0].game_size;
+    map['size-bytes-game-results'] = dbsizes.rows[0].game_results_size;
+    map['size-bytes-participants'] = dbsizes.rows[0].participants_size;
+    map['size-bytes-database'] = dbsizes.rows[0].db_size;
+
+    // Using count(*) is inefficient, but the estimates from here
+    // https://stackoverflow.com/questions/7943233/fast-way-to-discover-the-row-count-of-a-table-in-postgresql
+    // seem wildly inaccurate.
+    //
+    // heroku pg:bloat --app terraforming-mars
+    // shows some bloat
+    // and the postgres command
+    // VACUUM (VERBOSE) shows a fairly reasonable vacumm (no rows locked, for instance),
+    // so it's not clear why those wrong. But these select count(*) commands seem pretty quick
+    // in testing. :fingers-crossed:
+    for (const table of ['games', 'game_results', 'participants']) {
+      const result = await this.client.query('select count(*) as rowcount from ' + table);
+      map['rows-' + table] = result.rows[0].rowcount;
+    }
     return map;
   }
 }

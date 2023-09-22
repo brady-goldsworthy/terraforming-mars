@@ -2,7 +2,6 @@ import {mount} from '@vue/test-utils';
 import {getLocalVue} from './getLocalVue';
 import {expect} from 'chai';
 import {CardName} from '@/common/cards/CardName';
-import {CardType} from '@/common/cards/CardType';
 import SelectProjectCardToPlay from '@/client/components/SelectProjectCardToPlay.vue';
 import {PlayerInputModel} from '@/common/models/PlayerInputModel';
 import {PlayerViewModel, PublicPlayerModel} from '@/common/models/PlayerModel';
@@ -458,6 +457,28 @@ describe('SelectProjectCardToPlay', () => {
     expect(saveResponse.payment).deep.eq(Payment.of({seeds: 1, megaCredits: 7}));
   });
 
+  // TODO(kberg): Be greedy with graphene units.
+  it('using graphene', async () => {
+    // ASTEROID_MINING costs 30. Player has 11M€ and will use 5 graphene units.
+    const wrapper = setupCardForPurchase(
+      CardName.ASTEROID_MINING, 30,
+      {
+        megaCredits: 11,
+        titanium: 0,
+      },
+      {graphene: 7, canUseGraphene: true});
+
+    const tester = new PaymentTester(wrapper);
+    await tester.nextTick();
+
+    tester.expectIsAvailable('graphene', true);
+    tester.expectValue('graphene', 5);
+    tester.expectValue('megaCredits', 10);
+
+    tester.clickSave();
+    expect(saveResponse.payment).deep.eq(Payment.of({graphene: 5, megaCredits: 10}));
+  });
+
   it('initial setup allows for steel and titanium when using Last Restort Ingenuity', async () => {
     // Earth Office costs 1, but has no building tag or space tag.
     const wrapper = setupCardForPurchase(
@@ -589,7 +610,7 @@ describe('SelectProjectCardToPlay', () => {
     cardCost: number,
     playerFields: Partial<PublicPlayerModel>,
     playerInputFields: Partial<PlayerInputModel>,
-    reserveUnits: Units = Units.EMPTY) {
+    reserveUnits: Units | undefined = undefined) {
     const thisPlayer: Partial<PublicPlayerModel> = Object.assign({
       cards: [{name: cardName, calculatedCost: cardCost}],
       steel: 0,
@@ -608,12 +629,12 @@ describe('SelectProjectCardToPlay', () => {
       cards: [{
         name: cardName,
         resources: undefined,
-        cardType: CardType.ACTIVE,
-        isDisabled: false,
-        reserveUnits: reserveUnits,
         calculatedCost: cardCost,
       }],
     };
+    if (reserveUnits !== undefined) {
+      playerInput.cards![0].reserveUnits = reserveUnits;
+    }
     Object.assign(playerInput, playerInputFields);
 
     return mount(SelectProjectCardToPlay, {

@@ -3,8 +3,8 @@ import {TheNewSpaceRace} from '../../../src/server/cards/pathfinders/TheNewSpace
 import {Game} from '../../../src/server/Game';
 import {OrOptions} from '../../../src/server/inputs/OrOptions';
 import {PartyName} from '../../../src/common/turmoil/PartyName';
-import {cast} from '../../TestingUtils';
-import {getTestPlayer, newTestGame} from '../../TestGame';
+import {cast, doWait} from '../../TestingUtils';
+import {testGame} from '../../TestGame';
 import {AlliedBanks} from '../../../src/server/cards/prelude/AlliedBanks';
 import {BiosphereSupport} from '../../../src/server/cards/prelude/BiosphereSupport';
 import {AquiferTurbines} from '../../../src/server/cards/prelude/AquiferTurbines';
@@ -24,10 +24,14 @@ describe('TheNewSpaceRace', function() {
 
   beforeEach(function() {
     card = new TheNewSpaceRace();
-    game = newTestGame(3, {turmoilExtension: true, preludeExtension: true, draftVariant: false, initialDraftVariant: false});
-    player1 = getTestPlayer(game, 0);
-    player2 = getTestPlayer(game, 1);
-    player3 = getTestPlayer(game, 2);
+    [game, player1, player2, player3] = testGame(
+      3, {
+        turmoilExtension: true,
+        preludeExtension: true,
+        draftVariant: false,
+        initialDraftVariant: false,
+        skipInitialCardSelection: false,
+      });
   });
 
   /*
@@ -62,7 +66,7 @@ describe('TheNewSpaceRace', function() {
     // Some assertions before the last cb.
     expect(game.getPlayersInGenerationOrder()).deep.eq([player1, player2, player3]);
 
-    // Some cleanup before the last cb. These would be normally popped if the callbacs were dome via that string[][] stuff.
+    // Some cleanup before the last cb. These would be normally popped if the callbacks were done via inbound HTTP Request.
     // The cast() just confirms these are the expected SelectInitialCards
     cast(player1.popWaitingFor(), SelectInitialCards);
     cast(player2.popWaitingFor(), SelectInitialCards);
@@ -73,19 +77,16 @@ describe('TheNewSpaceRace', function() {
 
     expect(game.getPlayersInGenerationOrder()).deep.eq([player2, player3, player1]);
 
-    expect(player1.getWaitingFor()).is.undefined;
-    expect(player3.getWaitingFor()).is.undefined;
-    const [input, cb] = player2.popWaitingFor2();
-    const selectParty = cast(input, OrOptions);
+    cast(player1.getWaitingFor(), undefined);
+    cast(player3.getWaitingFor(), undefined);
+    doWait(player2, OrOptions, (selectParty) => {
+      expect(game.turmoil!.rulingParty.name).eq(PartyName.GREENS);
+      selectParty.options[2].cb(); // 2 is Unity.
+      expect(game.turmoil!.rulingParty.name).eq(PartyName.UNITY);
+    });
 
-    expect(game.turmoil!.rulingParty.name).eq(PartyName.GREENS);
-    selectParty.options[2].cb(); // 2 is Unity.
-    expect(game.turmoil!.rulingParty.name).eq(PartyName.UNITY);
-    // cb would be called during normal processing.
-    cb?.();
-
-    expect(player1.getWaitingFor()).is.undefined;
-    expect(player3.getWaitingFor()).is.undefined;
+    cast(player1.getWaitingFor(), undefined);
+    cast(player3.getWaitingFor(), undefined);
 
     // Player2 is up, and will play its other prelude first.
     const next = cast(player2.getWaitingFor(), SelectCard);

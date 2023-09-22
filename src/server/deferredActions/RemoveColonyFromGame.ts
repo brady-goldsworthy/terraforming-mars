@@ -1,10 +1,10 @@
-import {Player} from '../Player';
+import {IPlayer} from '../IPlayer';
 import {IColony} from '../colonies/IColony';
 import {SelectColony} from '../inputs/SelectColony';
 import {DeferredAction, Priority} from './DeferredAction';
 
 export class RemoveColonyFromGame extends DeferredAction {
-  constructor(player: Player) {
+  constructor(player: IPlayer) {
     super(player, Priority.DEFAULT);
   }
 
@@ -16,6 +16,7 @@ export class RemoveColonyFromGame extends DeferredAction {
       game.log('You discarded ${0}', (b) => b.colony(colony));
       return undefined;
     });
+    removeColony.showTileOnly = true;
 
     return removeColony;
   }

@@ -2,7 +2,7 @@ import {CardName} from '../../../common/cards/CardName';
 import {CardType} from '../../../common/cards/CardType';
 import {Tag} from '../../../common/cards/Tag';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
 import {all} from '../Options';
 
@@ -10,7 +10,7 @@ export class LunaResort extends Card {
   constructor() {
     super({
       name: CardName.LUNA_RESORT,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       tags: [Tag.MOON],
       cost: 11,
       reserveUnits: {titanium: 2},
@@ -27,7 +27,7 @@ export class LunaResort extends Card {
         cardNumber: 'M21',
         renderData: CardRenderer.builder((b) => {
           b.minus().titanium(2).production((pb) => {
-            pb.minus().energy(1).nbsp.megacredits(3);
+            pb.minus().energy(1).nbsp.plus().megacredits(3);
           }).br;
           b.moonHabitatRate();
         }),

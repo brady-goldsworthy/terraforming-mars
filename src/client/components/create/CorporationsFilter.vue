@@ -179,6 +179,7 @@ export default Vue.extend({
       case 'moon': return 'The Moon';
       case 'pathfinders': return 'Pathfinders';
       case 'pathfindersCardsOnly': return 'Bonus Cards';
+      case 'ceo': return 'CEOs';
       }
     },
   },

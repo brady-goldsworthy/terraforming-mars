@@ -7,6 +7,7 @@ import {AresData} from '../ares/AresData';
 import {Message} from '../logs/Message';
 import {PartyName} from '../turmoil/PartyName';
 import {TurmoilModel} from './TurmoilModel';
+import {TileType} from '../TileType';
 import {SpaceId} from '../Types';
 
 export interface PlayerInputModel {
@@ -18,6 +19,7 @@ export interface PlayerInputModel {
     canUseSeeds: boolean | undefined;
     canUseData: boolean | undefined;
     canUseLunaTradeFederationTitanium: boolean | undefined;
+    canUseGraphene: boolean | undefined;
     cards: Array<CardModel> | undefined;
     inputType: PlayerInputType;
     options: Array<PlayerInputModel> | undefined;
@@ -28,7 +30,8 @@ export interface PlayerInputModel {
     floaters: number | undefined;
     science: number | undefined;
     seeds: number | undefined;
-    data: number | undefined;
+    auroraiData: number | undefined;
+    graphene: number | undefined;
     players: Array<ColorWithNeutral> | undefined;
     title: string | Message;
     buttonLabel: string;
@@ -40,4 +43,6 @@ export interface PlayerInputModel {
     showOwner?: boolean;
     availableParties: Array<PartyName> | undefined;
     turmoil?: TurmoilModel;
+    tiles?: Array<TileType>;
+    showReset: boolean;
 }

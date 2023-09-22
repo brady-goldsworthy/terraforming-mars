@@ -1,14 +1,13 @@
 import {Message} from '../../common/logs/Message';
-import {PlayerInput} from '../PlayerInput';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
+import {BasePlayerInput, PlayerInput} from '../PlayerInput';
 import {InputResponse, isSelectOptionResponse} from '../../common/inputs/InputResponse';
 
-export class SelectOption implements PlayerInput {
-  public readonly inputType = PlayerInputType.SELECT_OPTION;
+export class SelectOption extends BasePlayerInput {
   constructor(
-        public title: string | Message,
-        public buttonLabel: string = 'Select',
-        public cb: () => PlayerInput | undefined) {
+    title: string | Message,
+    buttonLabel: string = 'Select',
+    public cb: () => PlayerInput | undefined) {
+    super('option', title);
     this.buttonLabel = buttonLabel;
   }
 

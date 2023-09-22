@@ -1,7 +1,7 @@
 import {IProjectCard} from '../IProjectCard';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardName} from '../../../common/cards/CardName';
 import {IActionCard, ICard, isIActionCard, isIHasCheckLoops} from '../ICard';
 import {SelectCard} from '../../inputs/SelectCard';
@@ -11,7 +11,7 @@ import {Size} from '../../../common/cards/render/Size';
 export class ProjectInspection extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.EVENT,
+      type: CardType.EVENT,
       name: CardName.PROJECT_INSPECTION,
       cost: 0,
 
@@ -23,23 +23,33 @@ export class ProjectInspection extends Card implements IProjectCard {
       },
     });
   }
-  private getActionCards(player: Player): Array<IActionCard & ICard> {
+
+  // This matches Viron.getActionCards.
+  private getActionCards(player: IPlayer): Array<IActionCard & ICard> {
     const result: Array<IActionCard & ICard> = [];
 
     for (const playedCard of player.tableau) {
-      if (isIHasCheckLoops(playedCard) && playedCard.getCheckLoops() >= 2) continue;
-      if (isIActionCard(playedCard) && playedCard.canAct(player) && player.getActionsThisGeneration().has(playedCard.name)) {
+      if (playedCard === this) {
+        continue;
+      }
+      if (!isIActionCard(playedCard)) {
+        continue;
+      }
+      if (isIHasCheckLoops(playedCard) && playedCard.getCheckLoops() >= 2) {
+        continue;
+      }
+      if (player.getActionsThisGeneration().has(playedCard.name) && playedCard.canAct(player)) {
         result.push(playedCard);
       }
     }
     return result;
   }
 
-  public override bespokeCanPlay(player: Player): boolean {
+  public override bespokeCanPlay(player: IPlayer): boolean {
     return this.getActionCards(player).length > 0;
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     const actionCards = this.getActionCards(player);
     if (actionCards.length === 0 ) {
       return undefined;

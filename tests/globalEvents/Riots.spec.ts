@@ -1,10 +1,10 @@
 import {expect} from 'chai';
 import {Game} from '../../src/server/Game';
-import {Resources} from '../../src/common/Resources';
+import {Resource} from '../../src/common/Resource';
 import {Riots} from '../../src/server/turmoil/globalEvents/Riots';
 import {Turmoil} from '../../src/server/turmoil/Turmoil';
 import {TestPlayer} from '../TestPlayer';
-import {addCityTile} from '../TestingUtils';
+import {addCity} from '../TestingUtils';
 
 describe('Riots', function() {
   it('resolve play', function() {
@@ -13,9 +13,9 @@ describe('Riots', function() {
     const game = Game.newInstance('gameid', [player], player);
     const turmoil = Turmoil.newInstance(game);
     turmoil.initGlobalEvent(game);
-    addCityTile(player);
-    player.addResource(Resources.MEGACREDITS, 10);
+    addCity(player);
+    player.stock.add(Resource.MEGACREDITS, 10);
     card.resolve(game, turmoil);
-    expect(player.getResource(Resources.MEGACREDITS)).to.eq(6);
+    expect(player.megaCredits).to.eq(6);
   });
 });

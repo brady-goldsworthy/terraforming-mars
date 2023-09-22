@@ -1,7 +1,7 @@
 import {StandardActionCard} from '../../StandardActionCard';
 import {CardName} from '../../../../common/cards/CardName';
 import {CardRenderer} from '../../render/CardRenderer';
-import {Player} from '../../../Player';
+import {IPlayer} from '../../../IPlayer';
 import {MAX_TEMPERATURE} from '../../../../common/constants';
 import {Units} from '../../../../common/Units';
 
@@ -21,7 +21,7 @@ export class ConvertHeat extends StandardActionCard {
     });
   }
 
-  public canAct(player: Player): boolean {
+  public canAct(player: IPlayer): boolean {
     if (player.game.getTemperature() === MAX_TEMPERATURE) {
       return false;
     }
@@ -31,13 +31,14 @@ export class ConvertHeat extends StandardActionCard {
       return false;
     }
 
-    return player.canAfford(0, {
+    return player.canAfford({
+      cost: 0,
       tr: {temperature: 1},
       reserveUnits: Units.of({heat: player.heatNeededForTemperature}),
     });
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     return player.spendHeat(player.heatNeededForTemperature, () => {
       this.actionUsed(player);
       player.game.increaseTemperature(player, 1);

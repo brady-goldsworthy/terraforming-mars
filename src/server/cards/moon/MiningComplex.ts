@@ -3,11 +3,11 @@ import {Tag} from '../../../common/cards/Tag';
 import {PreludeCard} from '../prelude/PreludeCard';
 import {CardRenderer} from '../render/CardRenderer';
 import {PlaceMoonMineTile} from '../../moon/PlaceMoonMineTile';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {MoonExpansion} from '../../moon/MoonExpansion';
 import {PlaceMoonRoadTile} from '../../moon/PlaceMoonRoadTile';
 import {SpaceType} from '../../../common/boards/SpaceType';
-import {Resources} from '../../../common/Resources';
+import {Resource} from '../../../common/Resource';
 import {AltSecondaryTag} from '../../../common/cards/render/AltSecondaryTag';
 import {TileType} from '../../../common/TileType';
 
@@ -31,11 +31,11 @@ export class MiningComplex extends PreludeCard {
     });
   }
 
-  public override bespokeCanPlay(player: Player) {
+  public override bespokeCanPlay(player: IPlayer) {
     return player.canAfford(7);
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     player.game.defer(new PlaceMoonMineTile(player)
       .andThen((space) => {
         const moon = MoonExpansion.moonData(player.game).moon;
@@ -50,7 +50,7 @@ export class MiningComplex extends PreludeCard {
             'Select a space next to the mine for a road',
           ));
       }));
-    player.deductResource(Resources.MEGACREDITS, 7);
+    player.stock.deduct(Resource.MEGACREDITS, 7);
     return undefined;
   }
 }

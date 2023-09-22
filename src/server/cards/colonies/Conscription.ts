@@ -1,9 +1,9 @@
 import {IProjectCard} from '../IProjectCard';
 import {CardType} from '../../../common/cards/CardType';
 import {Tag} from '../../../common/cards/Tag';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardName} from '../../../common/cards/CardName';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
 import {CardRenderer} from '../render/CardRenderer';
 import {Size} from '../../../common/cards/render/Size';
@@ -11,7 +11,7 @@ import {Size} from '../../../common/cards/render/Size';
 export class Conscription extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.EVENT,
+      type: CardType.EVENT,
       cost: 5,
       tags: [Tag.EARTH],
       name: CardName.CONSCRIPTION,
@@ -28,7 +28,7 @@ export class Conscription extends Card implements IProjectCard {
     });
   }
 
-  public override getCardDiscount(player: Player) {
+  public override getCardDiscount(player: IPlayer) {
     if (player.lastCardPlayed === this.name) {
       return 16;
     }

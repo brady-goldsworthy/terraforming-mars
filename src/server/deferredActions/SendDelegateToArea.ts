@@ -1,16 +1,15 @@
-import {Player} from '../Player';
-import {PlayerId} from '../../common/Types';
-import {SelectPartyToSendDelegate} from '../inputs/SelectPartyToSendDelegate';
+import {IPlayer} from '../IPlayer';
+import {SelectParty} from '../inputs/SelectParty';
 import {DeferredAction, Priority} from './DeferredAction';
 import {SelectPaymentDeferred} from './SelectPaymentDeferred';
-import {NeutralPlayer, Turmoil} from '../turmoil/Turmoil';
+import {Delegate, Turmoil} from '../turmoil/Turmoil';
 import {PartyName} from '../../common/turmoil/PartyName';
 
 export type Options = {
   /** The number of delegates to replace. Default is 1. */
   count?: number,
   /** If defined, this action is used to replace another player's delegates */
-  replace?: PlayerId | NeutralPlayer | undefined,
+  replace?: Delegate | undefined,
   /** Cost for sending this delegate. Default is no cost. */
   cost?: number,
   freeStandardAction?: boolean,
@@ -19,7 +18,7 @@ export class SendDelegateToArea extends DeferredAction {
   private turmoil: Turmoil;
 
   constructor(
-    player: Player,
+    player: IPlayer,
     public title: string = 'Select where to send a delegate',
     public options: Options = {},
   ) {
@@ -54,7 +53,7 @@ export class SendDelegateToArea extends DeferredAction {
     // How many delegates to send
     const numDelegateToSend = this.options.count ?? 1;
 
-    const sendDelegate = new SelectPartyToSendDelegate(this.title, 'Send delegate', availableParties, (partyName: PartyName) => {
+    const sendDelegate = new SelectParty(this.title, 'Send delegate', availableParties, (partyName: PartyName) => {
       if (this.options.cost) {
         this.player.game.defer(new SelectPaymentDeferred(this.player, this.options.cost, {title: 'Select how to pay for send delegate action'}));
       }

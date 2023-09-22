@@ -3,18 +3,18 @@ import {Tag} from '../../../common/cards/Tag';
 import {Card} from '../Card';
 import {CardName} from '../../../common/cards/CardName';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {PartyName} from '../../../common/turmoil/PartyName';
-import {Resources} from '../../../common/Resources';
+import {Resource} from '../../../common/Resource';
 import {SimpleDeferredAction} from '../../deferredActions/DeferredAction';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {played} from '../Options';
 
 export class GMOContract extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.GMO_CONTRACT,
       tags: [Tag.MICROBE, Tag.SCIENCE],
       cost: 3,
@@ -33,12 +33,12 @@ export class GMOContract extends Card implements IProjectCard {
     });
   }
 
-  public onCardPlayed(player: Player, card: IProjectCard): void {
+  public onCardPlayed(player: IPlayer, card: IProjectCard): void {
     const amount = player.tags.cardTagCount(card, [Tag.ANIMAL, Tag.PLANT, Tag.MICROBE]);
     if (amount > 0) {
       player.game.defer(
         new SimpleDeferredAction(player, () => {
-          player.addResource(Resources.MEGACREDITS, amount * 2, {log: true});
+          player.stock.add(Resource.MEGACREDITS, amount * 2, {log: true});
           return undefined;
         }),
       );

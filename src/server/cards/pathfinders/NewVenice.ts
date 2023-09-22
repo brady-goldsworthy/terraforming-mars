@@ -1,17 +1,17 @@
 import {Card} from '../Card';
 import {CardName} from '../../../common/cards/CardName';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {TileType} from '../../../common/TileType';
 import {CardType} from '../../../common/cards/CardType';
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 
 export class NewVenice extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.NEW_VENICE,
       tags: [Tag.MARS, Tag.POWER, Tag.BUILDING, Tag.CITY],
       cost: 21,
@@ -41,11 +41,11 @@ export class NewVenice extends Card implements IProjectCard {
   }
 
   // TODO(kberg): use reserveUnits for plants.
-  public override bespokeCanPlay(player: Player): boolean {
+  public override bespokeCanPlay(player: IPlayer): boolean {
     return player.plants >= 2;
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     player.plants -= 2;
     return undefined;
   }

@@ -3,19 +3,18 @@ import {CardType} from '../../../common/cards/CardType';
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
-import {VictoryPoints} from '../ICard';
 import {all} from '../Options';
 
 export class LunaSenate extends Card implements IProjectCard {
   constructor() {
     super({
       name: CardName.LUNA_SENATE,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       tags: [Tag.MOON, Tag.MOON],
       cost: 32,
-      victoryPoints: VictoryPoints.tags(Tag.MOON, 1, 1),
+      victoryPoints: {tag: Tag.MOON},
 
       behavior: {
         production: {megacredits: {tag: Tag.MOON, all: true}},

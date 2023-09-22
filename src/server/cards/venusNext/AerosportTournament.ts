@@ -1,6 +1,6 @@
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 import {Size} from '../../../common/cards/render/Size';
 import {Card} from '../Card';
@@ -12,7 +12,7 @@ export class AerosportTournament extends Card implements IProjectCard {
   constructor() {
     super({
       name: CardName.AEROSPORT_TOURNAMENT,
-      cardType: CardType.EVENT,
+      type: CardType.EVENT,
       cost: 7,
 
       requirements: CardRequirements.builder((b) => b.floaters(5)),

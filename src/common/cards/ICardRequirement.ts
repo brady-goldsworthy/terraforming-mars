@@ -1,4 +1,4 @@
-import {Resources} from '../Resources';
+import {Resource} from '../Resource';
 import {PartyName} from '../turmoil/PartyName';
 import {RequirementType} from './RequirementType';
 import {Tag} from './Tag';
@@ -6,8 +6,9 @@ import {Tag} from './Tag';
 export interface ICardRequirement {
   type: RequirementType;
   amount: number;
-  isMax: boolean;
-  isAny: boolean;
+  max: boolean;
+  all: boolean;
+  nextTo: boolean;
 }
 
 export interface IPartyCardRequirement extends ICardRequirement {
@@ -15,7 +16,7 @@ export interface IPartyCardRequirement extends ICardRequirement {
 }
 
 export interface IProductionCardRequirement extends ICardRequirement {
-  resource: Resources;
+  resource: Resource;
 }
 
 export interface ITagCardRequirement extends ICardRequirement {

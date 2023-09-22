@@ -1,18 +1,18 @@
 import {IProjectCard} from '../IProjectCard';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
 import {Tag} from '../../../common/cards/Tag';
-import {CardRequirements} from '../CardRequirements';
-import {Resources} from '../../../common/Resources';
+import {CardRequirements} from '../requirements/CardRequirements';
+import {Resource} from '../../../common/Resource';
 import {max} from '../Options';
 
 export class FlatMarsTheory extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.FLAT_MARS_THEORY,
       cost: 8,
       tags: [Tag.EARTH],
@@ -28,9 +28,9 @@ export class FlatMarsTheory extends Card implements IProjectCard {
     });
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     const generation = player.game.generation;
-    player.production.add(Resources.MEGACREDITS, generation, {log: true});
+    player.production.add(Resource.MEGACREDITS, generation, {log: true});
     return undefined;
   }
 }

@@ -1,27 +1,29 @@
 import {Message} from '../../common/logs/Message';
-import {PlayerInput} from '../PlayerInput';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
+import {BasePlayerInput, PlayerInput} from '../PlayerInput';
 import {isPayment, Payment} from '../../common/inputs/Payment';
 import {InputResponse, isSelectPaymentResponse} from '../../common/inputs/InputResponse';
-import {Player} from '../Player';
+import {IPlayer} from '../IPlayer';
 
-export class SelectPayment implements PlayerInput {
-  public readonly inputType = PlayerInputType.SELECT_PAYMENT;
-  public buttonLabel: string = 'Pay'; // no input button
+export class SelectPayment extends BasePlayerInput {
   constructor(
-        public title: string | Message,
-        public canUseSteel: boolean,
-        public canUseTitanium: boolean,
-        public canUseHeat: boolean,
-        public canUseSeeds: boolean,
-        public canUseData: boolean,
-        public canUseLunaTradeFederationTitanium: boolean,
-        public amount: number,
-        public cb: (payment: Payment) => PlayerInput | undefined,
+    title: string | Message,
+    public amount: number,
+    public canUse: {
+      steel?: boolean,
+      titanium?: boolean,
+      heat?: boolean,
+      seeds?: boolean,
+      data?: boolean,
+      lunaTradeFederationTitanium?: boolean,
+      graphene?: boolean,
+    },
+    public cb: (payment: Payment) => PlayerInput | undefined,
   ) {
+    super('payment', title);
+    this.buttonLabel = 'Pay'; // no input button
   }
 
-  public process(input: InputResponse, player: Player) {
+  public process(input: InputResponse, player: IPlayer) {
     if (!isSelectPaymentResponse(input)) {
       throw new Error('Not a valid SelectPaymentResponse');
     }

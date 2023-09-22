@@ -9,17 +9,17 @@ import {AresData} from '../ares/AresData';
 import {SpaceModel} from './SpaceModel';
 import {MoonModel} from './MoonModel';
 import {PathfindersModel} from './PathfindersModel';
-import {CardModel} from './CardModel';
 import {SpectatorId} from '../Types';
+import {ColonyName} from '../colonies/ColonyName';
 
 // Common data about a game not assocaited with a player (eg the temperature.)
 export type GameModel = {
   aresData: AresData | undefined;
   awards: Array<FundedAwardModel>;
   colonies: Array<ColonyModel>;
-  discardedColonies: Array<ColonyModel>; // TODO(kberg): Replace with Array<ColonyName>
-  corporationsToDraft: Array<CardModel>;
+  discardedColonies: Array<ColonyName>;
   deckSize: number;
+  expectedPurgeTimeMs: number;
   gameAge: number;
   gameOptions: GameOptionsModel;
   generation: number;
@@ -40,4 +40,5 @@ export type GameModel = {
   turmoil: TurmoilModel | undefined;
   undoCount: number;
   venusScaleLevel: number;
+  experimentalReset?: boolean;
 }

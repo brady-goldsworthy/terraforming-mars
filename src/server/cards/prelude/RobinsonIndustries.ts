@@ -1,9 +1,9 @@
 import {IActionCard} from '../ICard';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {ICorporationCard} from '../corporation/ICorporationCard';
 import {OrOptions} from '../../inputs/OrOptions';
 import {SelectOption} from '../../inputs/SelectOption';
-import {Resources} from '../../../common/Resources';
+import {ALL_RESOURCES} from '../../../common/Resource';
 import {Card} from '../Card';
 import {CardName} from '../../../common/cards/CardName';
 import {CardType} from '../../../common/cards/CardType';
@@ -12,7 +12,7 @@ import {CardRenderer} from '../render/CardRenderer';
 export class RobinsonIndustries extends Card implements IActionCard, ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.ROBINSON_INDUSTRIES,
       startingMegaCredits: 47,
       initialActionText: 'Increase any production two steps',
@@ -32,11 +32,11 @@ export class RobinsonIndustries extends Card implements IActionCard, ICorporatio
       },
     });
   }
-  public canAct(_player: Player): boolean {
+  public canAct(_player: IPlayer): boolean {
     return true;
   }
 
-  public initialAction(player: Player) {
+  public initialAction(player: IPlayer) {
     let selection: Array<SelectOption> = [];
 
     [Resources.MEGACREDITS, Resources.STEEL, Resources.TITANIUM, Resources.PLANTS, Resources.ENERGY, Resources.HEAT].forEach((resource) => {
@@ -53,11 +53,11 @@ export class RobinsonIndustries extends Card implements IActionCard, ICorporatio
     return result;
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     let minimum = player.production.megacredits;
     let lowest: Array<SelectOption> = [];
 
-    [Resources.MEGACREDITS, Resources.STEEL, Resources.TITANIUM, Resources.PLANTS, Resources.ENERGY, Resources.HEAT].forEach((resource) => {
+    ALL_RESOURCES.forEach((resource) => {
       const option = new SelectOption('Increase ' + resource + ' production 1 step', 'Select', () => {
         player.production.add(resource, 1, {log: true});
         return undefined;

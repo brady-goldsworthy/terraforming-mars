@@ -1,11 +1,11 @@
 import {CardName} from '../../../common/cards/CardName';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardType} from '../../../common/cards/CardType';
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {CardRenderer} from '../render/CardRenderer';
 import {PartyName} from '../../../common/turmoil/PartyName';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
 import {all} from '../Options';
 
@@ -13,7 +13,7 @@ export class WeGrowAsOne extends Card implements IProjectCard {
   constructor() {
     super({
       name: CardName.WE_GROW_AS_ONE,
-      cardType: CardType.EVENT,
+      type: CardType.EVENT,
       tags: [Tag.SPACE],
       cost: 8,
       requirements: CardRequirements.builder((b) => b.party(PartyName.UNITY)),
@@ -31,7 +31,7 @@ export class WeGrowAsOne extends Card implements IProjectCard {
     });
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     player.game.colonies.forEach((colony) => {
       if (colony.colonies.includes(player.id)) {
         colony.increaseTrack(2);

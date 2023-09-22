@@ -5,9 +5,10 @@ import {PlayerInputModel} from '@/common/models/PlayerInputModel';
 import {PlayerViewModel} from '@/common/models/PlayerModel';
 import {Tag} from '@/common/cards/Tag';
 import {Units} from '@/common/Units';
-import {DATA_VALUE, SEED_VALUE} from '@/common/constants';
+import {DATA_VALUE, GRAPHENE_VALUE, SEED_VALUE} from '@/common/constants';
 import {CardResource} from '@/common/CardResource';
 import {getCard} from '../cards/ClientCardManifest';
+import {PAYMENT_KEYS, PaymentKey} from '@/common/inputs/Payment';
 
 export interface SelectPaymentModel {
     card?: CardModel;
@@ -21,16 +22,19 @@ export interface SelectPaymentModel {
     warning: string | undefined;
     science?: number; // Science isn't used in this component, but it simplifies testing.
     seeds?: number;
-    data?: number;
+    auroraiData?: number;
+    graphene?: number; // Graphene isn't used in this component, but it simplifies testing.
 }
 
 export interface SelectProjectCardToPlayModel extends SelectPaymentModel {
   cardName: CardName;
   card: CardModel;
+  reserveUnits: Units;
   cards: Array<CardModel>;
   tags: Array<Tag>
   science: number;
   seeds: number;
+  graphene: number;
   available: Units;
 }
 
@@ -44,10 +48,6 @@ export interface PaymentWidgetModel extends SelectPaymentModel {
   playerView: PlayerViewModel;
   playerinput: PlayerInputModel;
 }
-
-// https://steveholgado.com/typescript-types-from-arrays/
-export const unit = ['megaCredits', 'titanium', 'steel', 'heat', 'microbes', 'floaters', 'science', 'seeds', 'data'] as const;
-export type Unit = typeof unit[number];
 
 export const PaymentWidgetMixin = {
   name: 'PaymentWidgetMixin',
@@ -72,7 +72,7 @@ export const PaymentWidgetMixin = {
     canUseLunaTradeFederationTitaniumOnly(): boolean {
       return this.canUseTitanium() !== true && this.canUseLunaTradeFederationTitanium();
     },
-    getResourceRate(resourceName: Unit): number {
+    getResourceRate(resourceName: PaymentKey): number {
       switch (resourceName) {
       case 'titanium':
         const v = this.asModel().playerView.thisPlayer.titaniumValue;
@@ -85,13 +85,15 @@ export const PaymentWidgetMixin = {
         return 3;
       case 'seeds':
         return SEED_VALUE;
-      case 'data':
+      case 'auroraiData':
         return DATA_VALUE;
+      case 'graphene':
+        return GRAPHENE_VALUE;
       default:
         return 1;
       }
     },
-    reduceValue(target: Unit, delta: number): void {
+    reduceValue(target: PaymentKey, delta: number): void {
       const currentValue: number | undefined = this.asModel()[target];
       if (currentValue === undefined) {
         throw new Error(`can not reduceValue for ${target} on this`);
@@ -103,7 +105,7 @@ export const PaymentWidgetMixin = {
       if (target !== 'megaCredits') this.setRemainingMCValue();
     },
     // max is the largest value this item can be. It's not the largest delta.
-    addValue(target: Unit, delta: number, max?: number): void {
+    addValue(target: PaymentKey, delta: number, max?: number): void {
       const currentValue: number | undefined = this.asModel()[target];
       if (currentValue === undefined) {
         throw new Error(`can not addValue for ${target} on this`);
@@ -132,7 +134,7 @@ export const PaymentWidgetMixin = {
 
       let remainingMC = ta.$data.cost;
 
-      for (const resource of unit) {
+      for (const resource of PAYMENT_KEYS) {
         if (resource === 'megaCredits') continue;
 
         const value = (ta[resource] ?? 0) * this.getResourceRate(resource);
@@ -141,7 +143,7 @@ export const PaymentWidgetMixin = {
 
       ta['megaCredits'] = Math.max(0, Math.min(this.getMegaCreditsMax(), remainingMC));
     },
-    setMaxValue(target: Unit, max?: number): void {
+    setMaxValue(target: PaymentKey, max?: number): void {
       let currentValue: number | undefined = this.asModel()[target];
       if (currentValue === undefined) {
         throw new Error(`can not setMaxValue for ${target} on this`);
@@ -156,7 +158,7 @@ export const PaymentWidgetMixin = {
         currentValue++;
       }
     },
-    getAmount(target: Unit): number {
+    getAmount(target: PaymentKey): number {
       let amount: number | undefined = undefined;
       const model = this.asModel();
       const thisPlayer = model.playerView.thisPlayer;
@@ -175,7 +177,8 @@ export const PaymentWidgetMixin = {
       case 'microbes':
       case 'science':
       case 'seeds':
-      case 'data':
+      case 'auroraiData':
+      case 'graphene':
         amount = model.playerinput[target];
         break;
       }

@@ -1,19 +1,17 @@
-
 import {Message} from '../../common/logs/Message';
-import {PlayerInput} from '../PlayerInput';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
+import {BasePlayerInput, PlayerInput} from '../PlayerInput';
 import {InputResponse, isSelectAmountResponse} from '../../common/inputs/InputResponse';
 
-export class SelectAmount implements PlayerInput {
-  public readonly inputType = PlayerInputType.SELECT_AMOUNT;
+export class SelectAmount extends BasePlayerInput {
   constructor(
-        public title: string | Message,
-        public buttonLabel: string = 'Save',
-        public cb: (amount: number) => undefined | PlayerInput,
-        public min: number,
-        public max: number,
-        public maxByDefault?: boolean,
+    title: string | Message,
+    buttonLabel: string = 'Save',
+    public cb: (amount: number) => undefined | PlayerInput,
+    public min: number,
+    public max: number,
+    public maxByDefault?: boolean,
   ) {
+    super('amount', title);
     this.buttonLabel = buttonLabel;
   }
 

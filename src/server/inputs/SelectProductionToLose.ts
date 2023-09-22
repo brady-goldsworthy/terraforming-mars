@@ -1,27 +1,25 @@
 import {Message} from '../../common/logs/Message';
-import {PlayerInput} from '../PlayerInput';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
-import {Player} from '../Player';
+import {BasePlayerInput, PlayerInput} from '../PlayerInput';
+import {IPlayer} from '../IPlayer';
 import {Units} from '../../common/Units';
 import {InputResponse, isSelectProductionToLoseResponse} from '../../common/inputs/InputResponse';
 import {sum} from '../../common/utils/utils';
 
-export class SelectProductionToLose implements PlayerInput {
-  public readonly inputType = PlayerInputType.SELECT_PRODUCTION_TO_LOSE;
-
+export class SelectProductionToLose extends BasePlayerInput {
   constructor(
-        public title: string | Message,
-        public unitsToLose: number,
-        public player: Player,
-        public cb: (units: Units) => PlayerInput | undefined,
-        public buttonLabel: string = 'Save',
+    title: string | Message,
+    public unitsToLose: number,
+    public player: IPlayer,
+    public cb: (units: Units) => PlayerInput | undefined,
+    buttonLabel: string = 'Save',
   ) {
+    super('productionToLose', title);
     this.buttonLabel = buttonLabel;
   }
 
   // TODO(kberg): Coul dmerge this with SelectResources, though it
   // would take some work.
-  public process(input: InputResponse, player: Player) {
+  public process(input: InputResponse, player: IPlayer) {
     if (!isSelectProductionToLoseResponse(input)) {
       throw new Error('Not a valid SelectProductionToLoseResponse');
     }

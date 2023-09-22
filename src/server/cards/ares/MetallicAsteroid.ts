@@ -11,10 +11,11 @@ import {all, digit} from '../Options';
 export class MetallicAsteroid extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.EVENT,
+      type: CardType.EVENT,
       name: CardName.METALLIC_ASTEROID,
       tags: [Tag.SPACE],
       cost: 13,
+      tilesBuilt: [TileType.METALLIC_ASTEROID],
 
       behavior: {
         stock: {titanium: 1},

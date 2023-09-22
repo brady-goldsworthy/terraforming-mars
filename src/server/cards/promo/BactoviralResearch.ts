@@ -5,18 +5,19 @@ import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
 import {CardRenderer} from '../render/CardRenderer';
 import {played} from '../Options';
+import {CardResource} from '../../../common/CardResource';
 
 export class BactoviralResearch extends Card implements IProjectCard {
   constructor() {
     super({
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       name: CardName.BACTOVIRAL_RESEARCH,
       tags: [Tag.MICROBE, Tag.SCIENCE],
       cost: 10,
 
       behavior: {
         drawCard: 1,
-        addResourcesToAnyCard: {count: {tag: Tag.SCIENCE}, tag: Tag.MICROBE},
+        addResourcesToAnyCard: {count: {tag: Tag.SCIENCE}, type: CardResource.MICROBE},
       },
 
       metadata: {
