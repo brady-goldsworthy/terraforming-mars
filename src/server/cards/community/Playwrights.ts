@@ -121,6 +121,7 @@ export class Playwrights extends Card implements ICorporationCard {
           const canAffordOptions = {
             cost: player.getCardCost(card),
             reserveUnits: MoonExpansion.adjustedReserveCosts(player, card),
+            titanium: true
           };
           return card.type === CardType.EVENT &&
           // Can player.canPlay(card) replace this?
@@ -133,4 +134,29 @@ export class Playwrights extends Card implements ICorporationCard {
 
     return playedEvents;
   }
+
+  // private getReplayableEvents(player: IPlayer): Array<IProjectCard> {
+  //   const playedEvents : IProjectCard[] = [];
+
+  //   this.checkLoops++;
+  //   try {
+  //     player.game.getPlayers().forEach((p) => {
+  //       playedEvents.push(...p.playedCards.filter((card) => {
+  //         return card.cardType === CardType.EVENT &&
+  //         // Can player.canPlay(card) replace this?
+  //         player.canAfford(player.getCardCost(card), {
+            
+  //           reserveUnits: MoonExpansion.adjustedReserveCosts(player, card),
+  //         };
+  //         return card.type === CardType.EVENT &&
+  //         // Can player.canPlay(card) replace this?
+  //         player.canAfford(canAffordOptions) && player.simpleCanPlay(card, canAffordOptions);
+  //       }));
+  //     });
+  //   } finally {
+  //     this.checkLoops--;
+  //   }
+
+  //   return playedEvents;
+  // }
 }

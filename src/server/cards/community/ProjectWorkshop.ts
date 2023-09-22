@@ -113,7 +113,7 @@ export class ProjectWorkshop extends Card implements ICorporationCard {
 
     if (activeCards.length === 0) return drawBlueCard;
     // TODO(kberg): Take reds into account
-    if (!player.canAfford(3)) return flipBlueCard;
+    if (!player.canAfford(1)) return flipBlueCard;
 
     return new OrOptions(drawBlueCard, flipBlueCard);
   }

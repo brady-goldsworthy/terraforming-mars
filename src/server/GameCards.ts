@@ -56,7 +56,7 @@ export class GameCards {
       [gameOptions.communityCardsOption, COMMUNITY_CARD_MANIFEST],
       [gameOptions.moonExpansion, MOON_CARD_MANIFEST],
       [gameOptions.pathfindersExpansion, PATHFINDERS_CARD_MANIFEST],
-      [gameOptions.pathfindersCardsOnlyOption, PATHFINDERS_CARDS_ONLY_MANIFEST]
+      [gameOptions.pathfindersCardsOnlyOption, PATHFINDERS_CARDS_ONLY_MANIFEST],
       [gameOptions.ceoExtension, CEO_CARD_MANIFEST],
     ];
 

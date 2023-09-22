@@ -42,8 +42,8 @@ export class Factorum extends Card implements IActionCard, ICorporationCard {
     });
   }
 
-  public canAct(player: IPlayer): boolean {
-    return player.energy === 0 || (player.canAfford(3) || player.energy >= 1);
+  public canAct(_player: IPlayer): boolean {
+    return true;
   }
 
   public action(player: IPlayer) {
@@ -68,7 +68,7 @@ export class Factorum extends Card implements IActionCard, ICorporationCard {
       'Spend 1 energy to draw a building card',
       'Draw card',
       () => {
-        player.deductResource(Resources.ENERGY, 1);
+        player.stock.deduct(Resource.ENERGY, 1)
         player.drawCard(1, {tag: Tag.BUILDING});
         return undefined;
       }

@@ -6,13 +6,13 @@ import {CardType} from '../../../common/cards/CardType';
 import {CardRenderer} from '../render/CardRenderer';
 import {played} from '../Options';
 import {Size} from '../../../common/cards/render/Size';
-import {Player} from '../../../server/Player';
+import {IPlayer} from '../../../server/IPlayer';
 import {IProjectCard} from '../../../server/cards/IProjectCard';
 
 export class OutOfThisWorld extends Card implements ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.OUT_OF_THIS_WORLD,
       tags: [Tag.SPACE],
       startingMegaCredits: 40,
@@ -44,7 +44,7 @@ export class OutOfThisWorld extends Card implements ICorporationCard {
     });
   }
 
-  public onCardPlayed(player: Player, card: IProjectCard): void {
+  public onCardPlayed(player: IPlayer, card: IProjectCard): void {
     if (player.isCorporation(this.name)) {
       let tags = card.tags.filter(((tag) => [Tag.JOVIAN, Tag.EARTH, Tag.VENUS].includes(tag)));
       tags = [...new Set(tags)];

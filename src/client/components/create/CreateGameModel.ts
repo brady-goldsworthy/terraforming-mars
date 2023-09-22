@@ -35,6 +35,7 @@ export interface CreateGameModel {
   shuffleMapOption: boolean;
   promoCardsOption: boolean;
   communityCardsOption: boolean;
+  pathfindersCardsOnlyOption: boolean;
   aresExtension: boolean;
   politicalAgendasExtension: AgendaStyle;
   moonExpansion: boolean;

@@ -197,7 +197,7 @@ const moduleAbbreviations: Record<GameModule, string> = {
   ares: 'a',
   moon: 'm',
   pathfinders: 'P',
-  pathfindersCardsOnly: 'o'
+  pathfindersCardsOnly: 'o',
   ceo: 'l', // ceo abbreviation is 'l' for leader, since both 'C' are already taken
 };
 
@@ -313,7 +313,7 @@ export default (Vue as WithRefs<Refs>).extend({
         moon: true,
         promo: true,
         pathfinders: true,
-        pathfindersCardsOnly: true
+        pathfindersCardsOnly: true,
         ceo: true,
       },
       types: {

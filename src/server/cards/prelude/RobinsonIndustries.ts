@@ -39,7 +39,7 @@ export class RobinsonIndustries extends Card implements IActionCard, ICorporatio
   public initialAction(player: IPlayer) {
     let selection: Array<SelectOption> = [];
 
-    [Resources.MEGACREDITS, Resources.STEEL, Resources.TITANIUM, Resources.PLANTS, Resources.ENERGY, Resources.HEAT].forEach((resource) => {
+    ALL_RESOURCES.forEach((resource) => {
       const option = new SelectOption('Increase ' + resource + ' production 2 steps', 'Select', () => {
         player.production.add(resource, 2, {log: true});
         return undefined;

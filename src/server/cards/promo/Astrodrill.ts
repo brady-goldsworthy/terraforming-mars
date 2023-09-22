@@ -55,13 +55,6 @@ export class Astrodrill extends Card implements IActionCard, ICorporationCard {
     return true;
   }
 
-  public initialAction(player: Player) {
-    player.drawCard(2, {
-      include: (card) => card.resourceType === CardResource.ASTEROID,
-    });
-    return undefined;
-  }
-
   public initialAction(player: IPlayer) {
     player.drawCard(2, {
       include: (card) => card.resourceType === CardResource.ASTEROID,

@@ -8,7 +8,7 @@ import {CardName} from '../../../common/cards/CardName';
 import {Card} from '../Card';
 import {CardRenderer} from '../render/CardRenderer';
 import {played} from '../Options';
-import {Resources} from '../../../common/Resources';
+import {Resource} from '../../../common/Resource';
 
 export class Arklight extends Card implements ICorporationCard {
   constructor() {
@@ -45,7 +45,7 @@ export class Arklight extends Card implements ICorporationCard {
     if (player.isCorporation(CardName.ARKLIGHT)) {
       const num_tags = card.tags.filter((cardTag) => cardTag === Tag.ANIMAL || cardTag === Tag.PLANT).length
       player.addResourceTo(this, {qty: num_tags, log: true});
-      player.production.add(Resources.MEGACREDITS, num_tags, {log: true})
+      player.production.add(Resource.MEGACREDITS, num_tags, {log: true})
     }
   }
 }
