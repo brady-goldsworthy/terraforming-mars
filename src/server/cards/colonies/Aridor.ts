@@ -35,37 +35,45 @@ export class Aridor extends Card implements ICorporationCard {
     });
   }
   public allTags = new Set<Tag>();
+  // public initialAction(player: IPlayer) {
+  //   const game = player.game;
+  //   if (game.discardedColonies.length === 0) return undefined;
+
+  //   const selectColony = new SelectColony('Aridor first action - Select colony tile to add', 'Add colony tile', game.discardedColonies, (colony: IColony) => {
+  //     if (game.discardedColonies.includes(colony)) {
+  //       game.colonies.push(colony);
+  //       game.colonies.sort((a, b) => (a.name > b.name) ? 1 : -1);
+  //       game.log('${0} added a new Colony tile: ${1}', (b) => b.player(player).colony(colony));
+  //       this.checkActivation(colony, game);
+  //       // TODO(kberg): remove this colony from discarded?
+  //     } else {
+  //       throw new Error(`Colony ${colony.name} is not a discarded colony`);
+  //     }
+  //     return undefined;
+  //   });
+  //   selectColony.showTileOnly = true;
+  //   return selectColony;
+  // }
+
   public initialAction(player: IPlayer) {
-    const game = player.game;
-    if (game.discardedColonies.length === 0) return undefined;
-
-    const selectColony = new SelectColony('Aridor first action - Select colony tile to add', 'Add colony tile', game.discardedColonies, (colony: IColony) => {
-      if (game.discardedColonies.includes(colony)) {
-        game.colonies.push(colony);
-        game.colonies.sort((a, b) => (a.name > b.name) ? 1 : -1);
-        game.log('${0} added a new Colony tile: ${1}', (b) => b.player(player).colony(colony));
-        this.checkActivation(colony, game);
-        // TODO(kberg): remove this colony from discarded?
-      } else {
-        throw new Error(`Colony ${colony.name} is not a discarded colony`);
-      }
-      return undefined;
-    });
-    selectColony.showTileOnly = true;
-    return selectColony;
+    ColoniesHandler.addColonyTile(
+      player,
+      {title: 'Aridor first action - Select colony tile to add'},
+    );
+    return undefined;
   }
 
-  private checkActivation(colony: IColony, game: IGame): void {
-    if (colony.isActive) return;
-    for (const player of game.getPlayers()) {
-      for (const card of player.tableau) {
-        const active = ColoniesHandler.maybeActivateColony(colony, card);
-        if (active) {
-          return;
-        }
-      }
-    }
-  }
+  // private checkActivation(colony: IColony, game: IGame): void {
+  //   if (colony.isActive) return;
+  //   for (const player of game.getPlayers()) {
+  //     for (const card of player.tableau) {
+  //       const active = ColoniesHandler.maybeActivateColony(colony, card);
+  //       if (active) {
+  //         return;
+  //       }
+  //     }
+  //   }
+  // }
 
   public onCorpCardPlayed(player: IPlayer, card: ICorporationCard) {
     return this.onCardPlayed(player, card);
