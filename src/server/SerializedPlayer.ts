@@ -5,9 +5,8 @@ import {SerializedCard} from './SerializedCard';
 import {SerializedTimer} from '../common/SerializedTimer';
 
 interface DeprecatedFields {
-    corporationCard?: SerializedCard | undefined; // TODO(kberg): remove after 2022-09-01
-    corporationInitialActionDone?: boolean; // TODO(kberg): remove field after 2022-09-01
 }
+
 export interface SerializedPlayer extends DeprecatedFields{
     actionsTakenThisGame: number;
     actionsTakenThisRound: number;
@@ -22,8 +21,9 @@ export interface SerializedPlayer extends DeprecatedFields{
     colonyTradeOffset: number;
     colonyVictoryPoints: number;
     color: Color;
-    corporations: Array<SerializedCard> | undefined; // TODO(kberg): remove undefined once it's applied across the board.
+    corporations: Array<SerializedCard>;
     dealtCorporationCards: Array<CardName>;
+    dealtCeoCards: Array<CardName>;
     dealtPreludeCards: Array<CardName>;
     dealtProjectCards: Array<CardName>;
     draftedCards: Array<CardName>;
@@ -37,6 +37,7 @@ export interface SerializedPlayer extends DeprecatedFields{
     heatProduction: number;
     id: PlayerId;
     lastCardPlayed?: CardName;
+    ceoCardsInHand: Array<CardName>;
     megaCreditProduction: number;
     megaCredits: number;
     name: string;
@@ -64,8 +65,7 @@ export interface SerializedPlayer extends DeprecatedFields{
     titaniumProduction: number;
     titaniumValue: number;
     totalDelegatesPlaced: number;
-    // TODO(kberg): change tradesThisTurn to tradeThisGeneration later
-    tradesThisTurn: number;
+    tradesThisGeneration: number;
     turmoilPolicyActionUsed: boolean;
     victoryPointsByGeneration: Array<number>;
 }

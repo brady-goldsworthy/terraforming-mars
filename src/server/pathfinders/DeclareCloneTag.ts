@@ -1,11 +1,11 @@
-import {Player} from '../Player';
+import {IPlayer} from '../IPlayer';
 import {DeferredAction, Priority} from '../deferredActions/DeferredAction';
-import {Tag} from '../../common/cards/Tag';
 import {OrOptions} from '../inputs/OrOptions';
 import {SelectOption} from '../inputs/SelectOption';
 import {ICloneTagCard} from '../cards/pathfinders/ICloneTagCard';
 import {IProjectCard} from '../cards/IProjectCard';
-import {PlanetaryTag} from './PathfindersExpansion';
+import {isPlanetaryTag, PLANETARY_TAGS, PlanetaryTag} from '../pathfinders/PathfindersData';
+import {intersection} from '../../common/utils/utils';
 
 /**
  * Declare what tag a new card has. Must occur before anything else, including
@@ -15,11 +15,10 @@ import {PlanetaryTag} from './PathfindersExpansion';
  * when the card has a clone tag, and instead defers that call.
  * That's why it calls onCardPlayed here.
  */
-export class DeclareCloneTag extends DeferredAction {
+export class DeclareCloneTag extends DeferredAction<PlanetaryTag> {
   public constructor(
-    player: Player,
+    player: IPlayer,
     public card: IProjectCard & ICloneTagCard,
-    public cb: (tag: PlanetaryTag) => void = () => {},
     public title: string = '') {
     super(player, Priority.DECLARE_CLONE_TAG);
     if (this.title === '') {
@@ -28,13 +27,12 @@ export class DeclareCloneTag extends DeferredAction {
   }
 
   public execute() {
-    const tags: Array<PlanetaryTag> = [Tag.EARTH, Tag.JOVIAN, Tag.MARS];
-    if (this.player.game.gameOptions.venusNextExtension === true) {
-      tags.push(Tag.VENUS);
-    }
-    if (this.player.game.gameOptions.moonExpansion === true) {
-      tags.push(Tag.MOON);
-    }
+    // This finds all the valid tags in the game.
+    // It also relies in `intersection` preserving order of the first array
+    // which defines the order of tags in SelectOption.
+    const tags = intersection(
+      PLANETARY_TAGS,
+      this.player.game.tags.filter(isPlanetaryTag));
 
     const options = tags.map((tag) => {
       return new SelectOption(tag, 'Choose', () => {

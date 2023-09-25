@@ -7,12 +7,14 @@ import {RandomBoardOption} from '../../common/boards/RandomBoardOption';
 import {Cloner} from '../database/Cloner';
 import {GameLoader} from '../database/GameLoader';
 import {Game} from '../Game';
-import {GameOptions} from '../GameOptions';
+import {GameOptions} from '../game/GameOptions';
 import {Player} from '../Player';
 import {Server} from '../models/ServerModel';
 import {ServeAsset} from './ServeAsset';
 import {NewGameConfig} from '../../common/game/NewGameConfig';
 import {GameId, PlayerId, SpectatorId} from '../../common/Types';
+import {generateRandomId} from '../utils/server-ids';
+import {IGame} from '../IGame';
 
 // Oh, this could be called Game, but that would introduce all kinds of issues.
 
@@ -22,11 +24,6 @@ export class GameHandler extends Handler {
   public static readonly INSTANCE = new GameHandler();
   private constructor() {
     super();
-  }
-
-  public generateRandomId(prefix: string): string {
-    // 281474976710656 possible values.
-    return prefix + Math.floor(Math.random() * Math.pow(16, 12)).toString(16);
   }
 
   public static boardOptions(board: RandomBoardOption | BoardName): Array<BoardName> {
@@ -59,15 +56,15 @@ export class GameHandler extends Handler {
       req.once('end', async () => {
         try {
           const gameReq: NewGameConfig = JSON.parse(body);
-          const gameId = this.generateRandomId('g') as GameId;
-          const spectatorId = this.generateRandomId('s') as SpectatorId;
+          const gameId = generateRandomId('g') as GameId;
+          const spectatorId = generateRandomId('s') as SpectatorId;
           const players = gameReq.players.map((obj: any) => {
             return new Player(
               obj.name,
               obj.color,
               obj.beginner,
               Number(obj.handicap), // For some reason handicap is coming up a string.
-              this.generateRandomId('p') as PlayerId,
+              generateRandomId('p') as PlayerId,
             );
           });
           let firstPlayerIdx = 0;
@@ -94,6 +91,7 @@ export class GameHandler extends Handler {
             venusNextExtension: gameReq.venusNext,
             coloniesExtension: gameReq.colonies,
             preludeExtension: gameReq.prelude,
+            prelude2Expansion: gameReq.prelude2Expansion,
             turmoilExtension: gameReq.turmoil,
             aresExtension: gameReq.aresExtension,
             aresHazards: true, // Not a runtime option.
@@ -108,7 +106,6 @@ export class GameHandler extends Handler {
             includeVenusMA: gameReq.includeVenusMA,
 
             draftVariant: gameReq.draftVariant,
-            corporationsDraft: gameReq.corporationsDraft,
             initialDraftVariant: gameReq.initialDraft,
             startingCorporations: gameReq.startingCorporations,
             shuffleMapOption: gameReq.shuffleMapOption,
@@ -125,12 +122,16 @@ export class GameHandler extends Handler {
             altVenusBoard: gameReq.altVenusBoard,
             escapeVelocityMode: gameReq.escapeVelocityMode,
             escapeVelocityThreshold: gameReq.escapeVelocityThreshold,
+            escapeVelocityBonusSeconds: gameReq.escapeVelocityBonusSeconds,
             escapeVelocityPeriod: gameReq.escapeVelocityPeriod,
             escapeVelocityPenalty: gameReq.escapeVelocityPenalty,
             twoCorpsVariant: gameReq.twoCorpsVariant,
+            ceoExtension: gameReq.ceoExtension,
+            customCeos: gameReq.customCeos,
+            startingCeos: gameReq.startingCeos,
           };
 
-          let game: Game;
+          let game: IGame;
           if (gameOptions.clonedGamedId !== undefined && !gameOptions.clonedGamedId.startsWith('#')) {
             const serialized = await Database.getInstance().loadCloneableGame(gameOptions.clonedGamedId);
             game = Cloner.clone(gameId, players, firstPlayerIdx, serialized);

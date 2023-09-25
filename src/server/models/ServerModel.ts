@@ -1,31 +1,29 @@
 import {CardModel} from '../../common/models/CardModel';
 import {ColonyModel} from '../../common/models/ColonyModel';
 import {Color} from '../../common/Color';
-import {Game} from '../Game';
-import {GameOptions} from '../GameOptions';
+import {IGame} from '../IGame';
+import {GameOptions} from '../game/GameOptions';
 import {SimpleGameModel} from '../../common/models/SimpleGameModel';
 import {GameOptionsModel} from '../../common/models/GameOptionsModel';
 import {ICard} from '../cards/ICard';
 import {isIProjectCard} from '../cards/IProjectCard';
 import {isICloneTagCard} from '../cards/pathfinders/ICloneTagCard';
 import {Board} from '../boards/Board';
-import {ISpace} from '../boards/ISpace';
-import {Player} from '../Player';
+import {Space} from '../boards/Space';
+import {IPlayer} from '../IPlayer';
 import {PlayerInput} from '../PlayerInput';
 import {PlayerInputModel} from '../../common/models/PlayerInputModel';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
 import {PlayerViewModel, Protection, PublicPlayerModel} from '../../common/models/PlayerModel';
 import {SelectAmount} from '../inputs/SelectAmount';
 import {SelectCard} from '../inputs/SelectCard';
 import {SelectPayment} from '../inputs/SelectPayment';
-import {SelectProjectCardToPlay} from '../inputs/SelectProjectCardToPlay';
+import {PlayCardMetadata, SelectProjectCardToPlay} from '../inputs/SelectProjectCardToPlay';
 import {SelectPlayer} from '../inputs/SelectPlayer';
 import {SelectSpace} from '../inputs/SelectSpace';
 import {SpaceHighlight, SpaceModel} from '../../common/models/SpaceModel';
 import {TileType} from '../../common/TileType';
 import {Phase} from '../../common/Phase';
-import {Resources} from '../../common/Resources';
-import {CardType} from '../../common/cards/CardType';
+import {Resource} from '../../common/Resource';
 import {
   ClaimedMilestoneModel,
   MilestoneScore,
@@ -37,8 +35,7 @@ import {SelectColony} from '../inputs/SelectColony';
 import {SelectProductionToLose} from '../inputs/SelectProductionToLose';
 import {ShiftAresGlobalParameters} from '../inputs/ShiftAresGlobalParameters';
 import {SpectatorModel} from '../../common/models/SpectatorModel';
-import {Units} from '../../common/Units';
-import {SelectPartyToSendDelegate} from '../inputs/SelectPartyToSendDelegate';
+import {SelectParty} from '../inputs/SelectParty';
 import {GameModel} from '../../common/models/GameModel';
 import {Turmoil} from '../turmoil/Turmoil';
 import {createPathfindersModel} from './PathfindersModel';
@@ -49,9 +46,11 @@ import {CardName} from '../../common/cards/CardName';
 import {Tag} from '../../common/cards/Tag';
 import {isICorporationCard} from '../cards/corporation/ICorporationCard';
 import {AresHandler} from '../ares/AresHandler';
+import {AwardScorer} from '../awards/AwardScorer';
+import {SpaceId} from '../../common/Types';
 
 export class Server {
-  public static getSimpleGameModel(game: Game): SimpleGameModel {
+  public static getSimpleGameModel(game: IGame): SimpleGameModel {
     return {
       activePlayer: game.getPlayerById(game.activePlayer).color,
       id: game.id,
@@ -64,10 +63,11 @@ export class Server {
       spectatorId: game.spectatorId,
       gameOptions: this.getGameOptionsAsModel(game.gameOptions),
       lastSoloGeneration: game.lastSoloGeneration(),
+      expectedPurgeTimeMs: game.expectedPurgeTimeMs(),
     };
   }
 
-  public static getGameModel(game: Game): GameModel {
+  public static getGameModel(game: IGame): GameModel {
     const turmoil = getTurmoilModel(game);
 
     return {
@@ -75,7 +75,8 @@ export class Server {
       awards: this.getAwards(game),
       colonies: this.getColonies(game, game.colonies),
       deckSize: game.projectDeck.drawPile.length,
-      discardedColonies: this.getColonies(game, game.discardedColonies, /* showTrackPosition */ false),
+      discardedColonies: game.discardedColonies.map((c) => c.name),
+      expectedPurgeTimeMs: game.expectedPurgeTimeMs(),
       gameAge: game.gameAge,
       gameOptions: this.getGameOptionsAsModel(game.gameOptions),
       generation: game.getGeneration(),
@@ -83,12 +84,12 @@ export class Server {
       lastSoloGeneration: game.lastSoloGeneration(),
       milestones: this.getMilestones(game),
       moon: this.getMoonModel(game),
-      oceans: game.board.getOceanCount(),
+      oceans: game.board.getOceanSpaces().length,
       oxygenLevel: game.getOxygenLevel(),
       passedPlayers: game.getPassedPlayers(),
       pathfinders: createPathfindersModel(game),
       phase: game.phase,
-      spaces: this.getSpaces(game.board),
+      spaces: this.getSpaces(game.board, game.gagarinBase, game.stJosephCathedrals, game.nomadSpace),
       spectatorId: game.spectatorId,
       temperature: game.getTemperature(),
       isTerraformed: game.marsIsTerraformed(),
@@ -96,11 +97,10 @@ export class Server {
       undoCount: game.undoCount,
       venusScaleLevel: game.getVenusScaleLevel(),
       step: game.lastSaveId,
-      corporationsToDraft: this.getCards(game.getPlayers()[0], game.corporationsToDraft),
     };
   }
 
-  public static getPlayerModel(player: Player): PlayerViewModel {
+  public static getPlayerModel(player: IPlayer): PlayerViewModel {
     const game = player.game;
 
     const players: Array<PublicPlayerModel> = game.getPlayersInGenerationOrder().map(this.getPlayer);
@@ -109,8 +109,10 @@ export class Server {
 
     return {
       cardsInHand: this.getCards(player, player.cardsInHand, {showCalculatedCost: true}),
+      ceoCardsInHand: this.getCards(player, player.ceoCardsInHand),
       dealtCorporationCards: this.getCards(player, player.dealtCorporationCards),
       dealtPreludeCards: this.getCards(player, player.dealtPreludeCards),
+      dealtCeoCards: this.getCards(player, player.dealtCeoCards),
       dealtProjectCards: this.getCards(player, player.dealtProjectCards),
       draftedCorporations: this.getCards(player, player.draftedCorporations),
       draftedCards: this.getCards(player, player.draftedCards, {showCalculatedCost: true}),
@@ -124,7 +126,7 @@ export class Server {
     };
   }
 
-  public static getSpectatorModel(game: Game): SpectatorModel {
+  public static getSpectatorModel(game: IGame): SpectatorModel {
     return {
       color: Color.NEUTRAL,
       id: game.spectatorId,
@@ -134,22 +136,19 @@ export class Server {
     };
   }
 
-  public static getSelfReplicatingRobotsTargetCards(player: Player): Array<CardModel> {
+  public static getSelfReplicatingRobotsTargetCards(player: IPlayer): Array<CardModel> {
     return player.getSelfReplicatingRobotsTargetCards().map((targetCard) => {
       const model: CardModel = {
         resources: targetCard.resourceCount,
         name: targetCard.card.name,
         calculatedCost: player.getCardCost(targetCard.card),
-        cardType: CardType.ACTIVE,
-        isDisabled: false,
-        reserveUnits: Units.EMPTY, // I wonder if this could just be removed.
         isSelfReplicatingRobotsCard: true,
       };
       return model;
     });
   }
 
-  public static getMilestones(game: Game): Array<ClaimedMilestoneModel> {
+  public static getMilestones(game: IGame): Array<ClaimedMilestoneModel> {
     const allMilestones = game.milestones;
     const claimedMilestones = game.claimedMilestones;
     const milestoneModels: Array<ClaimedMilestoneModel> = [];
@@ -167,8 +166,8 @@ export class Server {
       }
 
       milestoneModels.push({
-        player_name: claimed === undefined ? '' : claimed.player.name,
-        player_color: claimed === undefined ? '' : claimed.player.color,
+        playerName: claimed === undefined ? '' : claimed.player.name,
+        playerColor: claimed === undefined ? '' : claimed.player.color,
         name: milestone.name,
         scores,
       });
@@ -177,26 +176,24 @@ export class Server {
     return milestoneModels;
   }
 
-  public static getAwards(game: Game): Array<FundedAwardModel> {
-    const allAwards = game.awards;
+  public static getAwards(game: IGame): Array<FundedAwardModel> {
     const fundedAwards = game.fundedAwards;
     const awardModels: Array<FundedAwardModel> = [];
 
-    for (const award of allAwards) {
-      const funded = fundedAwards.find(
-        (a) => a.award.name === award.name,
-      );
+    for (const award of game.awards) {
+      const funded = fundedAwards.find((a) => a.award.name === award.name);
+      const scorer = new AwardScorer(game, award);
       let scores: Array<AwardScore> = [];
       if (fundedAwards.length < 3 || funded !== undefined) {
         scores = game.getPlayers().map((player) => ({
           playerColor: player.color,
-          playerScore: award.getScore(player),
+          playerScore: scorer.get(player),
         }));
       }
 
       awardModels.push({
-        player_name: funded === undefined ? '' : funded.player.name,
-        player_color: funded === undefined ? '' : funded.player.color,
+        playerName: funded === undefined ? '' : funded.player.name,
+        playerColor: funded === undefined ? '' : funded.player.color,
         name: award.name,
         scores: scores,
       });
@@ -206,7 +203,7 @@ export class Server {
   }
 
   public static getWaitingFor(
-    player: Player,
+    player: IPlayer,
     waitingFor: PlayerInput | undefined,
   ): PlayerInputModel | undefined {
     if (waitingFor === undefined) {
@@ -226,26 +223,33 @@ export class Server {
       canUseLunaTradeFederationTitanium: undefined,
       canUseHeat: undefined,
       canUseSeeds: undefined,
-      canUseData: undefined,
+      canUseAuroraiData: undefined,
+      canUseGraphene: undefined,
+      canUseAsteroids: undefined,
+      canUseSpireScience: undefined,
       players: undefined,
       availableSpaces: undefined,
       maxByDefault: undefined,
       microbes: undefined,
       floaters: undefined,
-      science: undefined,
+      lunaArchivesScience: undefined,
+      spireScience: undefined,
       seeds: undefined,
-      data: undefined,
+      auroraiData: undefined,
+      graphene: undefined,
+      kuiperAsteroids: undefined,
       coloniesModel: undefined,
       payProduction: undefined,
       aresData: undefined,
       selectBlueCardAction: false,
       availableParties: undefined,
       turmoil: undefined,
+      showReset: player.game.inputsThisRound > 0 && player.game.resettable === true && player.game.phase === Phase.ACTION,
     };
     switch (waitingFor.inputType) {
-    case PlayerInputType.AND_OPTIONS:
-    case PlayerInputType.OR_OPTIONS:
-    case PlayerInputType.SELECT_INITIAL_CARDS:
+    case 'and':
+    case 'or':
+    case 'initialCards':
       playerInputModel.options = [];
       if (waitingFor.options !== undefined) {
         for (const option of waitingFor.options) {
@@ -258,17 +262,19 @@ export class Server {
         throw new Error('required options not defined');
       }
       break;
-    case PlayerInputType.SELECT_PROJECT_CARD_TO_PLAY:
+    case 'projectCard':
       const spctp: SelectProjectCardToPlay = waitingFor as SelectProjectCardToPlay;
-      playerInputModel.cards = this.getCards(player, spctp.cards, {showCalculatedCost: true, reserveUnits: spctp.reserveUnits});
+      playerInputModel.cards = this.getCards(player, spctp.cards, {showCalculatedCost: true, extras: spctp.extras});
       playerInputModel.microbes = player.getSpendableMicrobes();
       playerInputModel.floaters = player.getSpendableFloaters();
       playerInputModel.canUseHeat = player.canUseHeatAsMegaCredits;
       playerInputModel.canUseLunaTradeFederationTitanium = player.canUseTitaniumAsMegacredits;
-      playerInputModel.science = player.getSpendableScienceResources();
+      playerInputModel.lunaArchivesScience = player.getSpendableLunaArchiveScienceResources();
       playerInputModel.seeds = player.getSpendableSeedResources();
+      playerInputModel.graphene = player.getSpendableGraphene();
+      playerInputModel.kuiperAsteroids = player.getSpendableKuiperAsteroids();
       break;
-    case PlayerInputType.SELECT_CARD:
+    case 'card':
       const selectCard = waitingFor as SelectCard<ICard>;
       playerInputModel.cards = this.getCards(player, selectCard.cards, {
         showCalculatedCost: selectCard.config.played === false || selectCard.config.played === CardName.SELF_REPLICATING_ROBOTS,
@@ -281,37 +287,44 @@ export class Server {
       playerInputModel.selectBlueCardAction = selectCard.config.selectBlueCardAction;
       playerInputModel.showOwner = selectCard.config.showOwner === true;
       break;
-    case PlayerInputType.SELECT_COLONY:
-      playerInputModel.coloniesModel = this.getColonyModel(player.game, (waitingFor as SelectColony).colonies);
+    case 'colony':
+      const selectColony = waitingFor as SelectColony;
+      playerInputModel.coloniesModel = this.getColonyModel(player.game, selectColony.colonies, selectColony.showTileOnly);
       break;
-    case PlayerInputType.SELECT_PAYMENT:
+    case 'payment':
       const sp = waitingFor as SelectPayment;
       playerInputModel.amount = sp.amount;
-      playerInputModel.canUseSteel = sp.canUseSteel;
-      playerInputModel.canUseTitanium = sp.canUseTitanium;
-      playerInputModel.canUseHeat = sp.canUseHeat;
-      playerInputModel.canUseLunaTradeFederationTitanium = sp.canUseLunaTradeFederationTitanium;
-      playerInputModel.canUseSeeds = sp.canUseSeeds;
+      // These ?? false might be unnecessary.
+      playerInputModel.canUseSteel = sp.canUse.steel ?? false;
+      playerInputModel.canUseTitanium = sp.canUse.titanium ?? false;
+      playerInputModel.canUseHeat = sp.canUse.heat ?? false;
+      playerInputModel.canUseLunaTradeFederationTitanium = sp.canUse.lunaTradeFederationTitanium ?? false;
+      playerInputModel.canUseSeeds = sp.canUse.seeds ?? false;
       playerInputModel.seeds = player.getSpendableSeedResources();
-      playerInputModel.canUseData = sp.canUseData;
-      playerInputModel.data = player.getSpendableData();
+      playerInputModel.canUseAuroraiData = sp.canUse.auroraiData ?? false;
+      playerInputModel.auroraiData = player.getSpendableData();
+      playerInputModel.canUseGraphene = sp.canUse.graphene && player.getSpendableData() > 0;
+      playerInputModel.canUseAsteroids = sp.canUse.kuiperAsteroids && player.getSpendableKuiperAsteroids() > 0;
+      playerInputModel.kuiperAsteroids = player.getSpendableKuiperAsteroids();
+      playerInputModel.canUseSpireScience = sp.canUse.spireScience ?? false;
+      playerInputModel.spireScience = player.getSpendableSpireScienceResources();
       break;
-    case PlayerInputType.SELECT_PLAYER:
+    case 'player':
       playerInputModel.players = (waitingFor as SelectPlayer).players.map(
         (player) => player.color,
       );
       break;
-    case PlayerInputType.SELECT_SPACE:
-      playerInputModel.availableSpaces = (waitingFor as SelectSpace).availableSpaces.map(
+    case 'space':
+      playerInputModel.availableSpaces = (waitingFor as SelectSpace).spaces.map(
         (space) => space.id,
       );
       break;
-    case PlayerInputType.SELECT_AMOUNT:
+    case 'amount':
       playerInputModel.min = (waitingFor as SelectAmount).min;
       playerInputModel.max = (waitingFor as SelectAmount).max;
       playerInputModel.maxByDefault = (waitingFor as SelectAmount).maxByDefault;
       break;
-    case PlayerInputType.SELECT_DELEGATE:
+    case 'delegate':
       playerInputModel.players = (waitingFor as SelectDelegate).players.map(
         (player) => {
           if (player === 'NEUTRAL') {
@@ -322,13 +335,13 @@ export class Server {
         },
       );
       break;
-    case PlayerInputType.SELECT_PARTY_TO_SEND_DELEGATE:
-      playerInputModel.availableParties = (waitingFor as SelectPartyToSendDelegate).availableParties;
+    case 'party':
+      playerInputModel.availableParties = (waitingFor as SelectParty).availableParties;
       if (player.game !== undefined) {
         playerInputModel.turmoil = getTurmoilModel(player.game);
       }
       break;
-    case PlayerInputType.SELECT_PRODUCTION_TO_LOSE:
+    case 'productionToLose':
       const _player = (waitingFor as SelectProductionToLose).player;
       playerInputModel.payProduction = {
         cost: (waitingFor as SelectProductionToLose).unitsToLose,
@@ -342,7 +355,7 @@ export class Server {
         },
       };
       break;
-    case PlayerInputType.SHIFT_ARES_GLOBAL_PARAMETERS:
+    case 'aresGlobalParameters':
       AresHandler.ifAres((waitingFor as ShiftAresGlobalParameters).player.game, (aresData) => {
         playerInputModel.aresData = aresData;
       });
@@ -352,12 +365,12 @@ export class Server {
   }
 
   public static getCards(
-    player: Player,
-    cards: Array<ICard>,
+    player: IPlayer,
+    cards: ReadonlyArray<ICard>,
     options: {
       showResources?: boolean,
       showCalculatedCost?: boolean,
-      reserveUnits?: Array<Units>,
+      extras?: Map<CardName, PlayCardMetadata>,
       enabled?: Array<boolean>, // If provided, then the cards with false in `enabled` are not selectable and grayed out
     } = {},
   ): Array<CardModel> {
@@ -372,35 +385,48 @@ export class Server {
         discount = [{tag: Tag.MARS, amount: player.tags.count(Tag.MARS)}];
       }
 
-      const isDisabled = isICorporationCard(card) ? (card.isDisabled || false) : (options.enabled?.[index] === false);
+
+      let warning = card.warning;
+      const playCardMetadata = options?.extras?.get(card.name);
+      if (typeof(playCardMetadata?.details) === 'object') {
+        const thinkTankResources = playCardMetadata?.details.thinkTankResources;
+        if ((thinkTankResources ?? 0) > 0) {
+          warning = `Playing ${card.name} Consumes ${thinkTankResources} data from Think Tank`;
+        }
+      }
 
       const model: CardModel = {
         resources: options.showResources ? card.resourceCount : undefined,
         name: card.name,
         calculatedCost: options.showCalculatedCost ? (isIProjectCard(card) && card.cost !== undefined ? player.getCardCost(card) : undefined) : card.cost,
-        cardType: card.cardType,
-        isDisabled: isDisabled,
-        warning: card.warning,
-        reserveUnits: options.reserveUnits ? options.reserveUnits[index] : Units.EMPTY,
+        warning: warning,
         bonusResource: isIProjectCard(card) ? card.bonusResource : undefined,
         discount: discount,
         cloneTag: isICloneTagCard(card) ? card.cloneTag : undefined,
       };
+      const isDisabled = isICorporationCard(card) ? (card.isDisabled || false) : (options.enabled?.[index] === false);
+      if (isDisabled === true) {
+        model.isDisabled = true;
+      }
+      const reserveUnits = playCardMetadata?.reserveUnits;
+      if (reserveUnits !== undefined) {
+        model.reserveUnits = reserveUnits;
+      }
       return model;
     });
   }
 
-  public static getPlayer(player: Player): PublicPlayerModel {
+  public static getPlayer(player: IPlayer): PublicPlayerModel {
     const game = player.game;
     return {
       actionsTakenThisRound: player.actionsTakenThisRound,
       actionsTakenThisGame: player.actionsTakenThisGame,
       actionsThisGeneration: Array.from(player.getActionsThisGeneration()),
-      availableBlueCardActionCount: player.getPlayableActionCards().length,
+      availableBlueCardActionCount: player.getAvailableBlueActionCount(),
       cardCost: player.cardCost,
       cardDiscount: player.colonies.cardDiscount,
       cardsInHandNbr: player.cardsInHand.length,
-      citiesCount: player.game.getCitiesCount(player),
+      citiesCount: player.game.board.getCities(player).length,
       coloniesCount: player.getColoniesCount(),
       color: player.color,
       energy: player.energy,
@@ -408,7 +434,7 @@ export class Server {
       fleetSize: player.colonies.getFleetSize(),
       heat: player.heat,
       heatProduction: player.production.heat,
-      id: game.phase === Phase.END ? player.id : player.color,
+      id: game.phase === Phase.END ? player.id : undefined,
       influence: Turmoil.ifTurmoilElse(game, (turmoil) => turmoil.getPlayerInfluence(player), () => 0),
       isActive: player.id === game.activePlayer,
       lastCardPlayed: player.lastCardPlayed,
@@ -417,7 +443,7 @@ export class Server {
       name: player.name,
       needsToDraft: player.needsToDraft,
       needsToResearch: !game.hasResearched(player),
-      noTagsCount: player.getNoTagsCount(),
+      noTagsCount: player.tags.numberOfCardsWithNoTags(),
       plants: player.plants,
       plantProduction: player.production.plants,
       protectedResources: Server.getResourceProtections(player),
@@ -427,7 +453,7 @@ export class Server {
       steel: player.steel,
       steelProduction: player.production.steel,
       steelValue: player.getSteelValue(),
-      tags: player.tags.getAllTags(),
+      tags: player.tags.countAllTags(),
       terraformRating: player.getTerraformRating(),
       timer: player.timer.serialize(),
       titanium: player.titanium,
@@ -439,8 +465,8 @@ export class Server {
     };
   }
 
-  private static getResourceProtections(player: Player) {
-    const protection: Record<Resources, Protection> = {
+  private static getResourceProtections(player: IPlayer) {
+    const protection: Record<Resource, Protection> = {
       megacredits: 'off',
       steel: 'off',
       titanium: 'off',
@@ -463,9 +489,9 @@ export class Server {
     return protection;
   }
 
-  private static getProductionProtections(player: Player) {
+  private static getProductionProtections(player: IPlayer) {
     const defaultProteection = player.cardIsInEffect(CardName.PRIVATE_SECURITY) ? 'on' : 'off';
-    const protection: Record<Resources, Protection> = {
+    const protection: Record<Resource, Protection> = {
       megacredits: defaultProteection,
       steel: defaultProteection,
       titanium: defaultProteection,
@@ -482,7 +508,7 @@ export class Server {
     return protection;
   }
 
-  public static getColonies(game: Game, colonies: Array<IColony>, isActive: boolean = true): Array<ColonyModel> {
+  public static getColonies(game: IGame, colonies: Array<IColony>, isActive: boolean = true): Array<ColonyModel> {
     return colonies.map(
       (colony): ColonyModel => ({
         colonies: colony.colonies.map(
@@ -501,7 +527,7 @@ export class Server {
 
   // Oceans can't be owned so they shouldn't have a color associated with them
   // Land claim can have a color on a space without a tile
-  private static getColor(space: ISpace): Color | undefined {
+  private static getColor(space: Space): Color | undefined {
     if (
       (space.tile === undefined || space.tile.tileType !== TileType.OCEAN) &&
     space.player !== undefined
@@ -514,7 +540,11 @@ export class Server {
     return undefined;
   }
 
-  private static getSpaces(board: Board): Array<SpaceModel> {
+  private static getSpaces(
+    board: Board,
+    gagarin: ReadonlyArray<SpaceId> = [],
+    cathedrals: ReadonlyArray<SpaceId> = [],
+    nomads: SpaceId | undefined = undefined): Array<SpaceModel> {
     const volcanicSpaceIds = board.getVolcanicSpaceIds();
     const noctisCitySpaceIds = board.getNoctisCitySpaceId();
 
@@ -525,16 +555,35 @@ export class Server {
       } else if (noctisCitySpaceIds === space.id) {
         highlight = 'noctis';
       }
-      return {
+
+      const model: SpaceModel = {
         x: space.x,
         y: space.y,
         id: space.id,
-        bonus: space.bonus,
         spaceType: space.spaceType,
-        tileType: space.tile && space.tile.tileType,
+        bonus: space.bonus,
+        // TODO(kberg): Don't show tileType or color if they're undefined.
+        tileType: space.tile?.tileType,
         color: this.getColor(space),
-        highlight: highlight,
       };
+      if (highlight === undefined) {
+        model.highlight = highlight;
+      }
+      if (space.tile?.rotated === true) {
+        model.rotated = true;
+      }
+      const gagarinIndex = gagarin.indexOf(space.id);
+      if (gagarinIndex > -1) {
+        model.gagarin = gagarinIndex;
+      }
+      if (cathedrals.includes(space.id)) {
+        model.cathedral = true;
+      }
+      if (space.id === nomads) {
+        model.nomads = true;
+      }
+
+      return model;
     });
   }
 
@@ -544,13 +593,14 @@ export class Server {
       aresExtension: options.aresExtension,
       boardName: options.boardName,
       bannedCards: options.bannedCards,
+      ceoExtension: options.ceoExtension,
       coloniesExtension: options.coloniesExtension,
       communityCardsOption: options.communityCardsOption,
       corporateEra: options.corporateEra,
       draftVariant: options.draftVariant,
-      corporationsDraft: options.corporationsDraft,
       escapeVelocityMode: options.escapeVelocityMode,
       escapeVelocityThreshold: options.escapeVelocityThreshold,
+      escapeVelocityBonusSeconds: options.escapeVelocityBonusSeconds,
       escapeVelocityPeriod: options.escapeVelocityPeriod,
       escapeVelocityPenalty: options.escapeVelocityPenalty,
       fastModeOption: options.fastModeOption,
@@ -572,34 +622,35 @@ export class Server {
       requiresMoonTrackCompletion: options.requiresMoonTrackCompletion,
       requiresVenusTrackCompletion: options.requiresVenusTrackCompletion,
       turmoilExtension: options.turmoilExtension,
+      twoCorpsVariant: options.twoCorpsVariant,
       venusNextExtension: options.venusNextExtension,
       undoOption: options.undoOption,
-      twoCorpsVariant: options.twoCorpsVariant,
     };
   }
 
-  private static getColonyModel(game: Game, colonies: Array<IColony>) : Array<ColonyModel> {
+  private static getColonyModel(game: IGame, colonies: Array<IColony>, showTileOnly: boolean) : Array<ColonyModel> {
     return colonies.map(
       (colony): ColonyModel => ({
         colonies: colony.colonies.map(
           (playerId): Color => game.getPlayerById(playerId).color,
         ),
-        isActive: colony.isActive,
+        isActive: colony.isActive && showTileOnly === false,
         name: colony.name,
         trackPosition: colony.trackPosition,
         visitor:
-                colony.visitor === undefined ?
-                  undefined :
-                  game.getPlayerById(colony.visitor).color,
+          colony.visitor === undefined ?
+            undefined :
+            game.getPlayerById(colony.visitor).color,
       }),
     );
   }
-  private static getMoonModel(game: Game): MoonModel | undefined {
+
+  private static getMoonModel(game: IGame): MoonModel | undefined {
     return MoonExpansion.ifElseMoon(game, (moonData) => {
       return {
         logisticsRate: moonData.logisticRate,
         miningRate: moonData.miningRate,
-        colonyRate: moonData.colonyRate,
+        habitatRate: moonData.habitatRate,
         spaces: this.getSpaces(moonData.moon),
       };
     }, () => undefined);

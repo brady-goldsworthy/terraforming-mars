@@ -1,33 +1,31 @@
 import {CardName} from '../../../common/cards/CardName';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardType} from '../../../common/cards/CardType';
 import {Tag} from '../../../common/cards/Tag';
 import {CardResource} from '../../../common/CardResource';
-import {StealResources} from '../../deferredActions/StealResources';
-import {Resources} from '../../../common/Resources';
+import {Resource} from '../../../common/Resource';
 import {CardRenderer} from '../render/CardRenderer';
 import {Card} from '../Card';
 import {all} from '../Options';
-import {VictoryPoints} from '../ICard';
 
 export class AncientShipyards extends Card {
   constructor() {
     super({
       name: CardName.ANCIENT_SHIPYARDS,
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       tags: [Tag.MOON, Tag.SPACE],
       cost: 6,
 
       resourceType: CardResource.RESOURCE_CUBE,
-      victoryPoints: VictoryPoints.resource(-1, 1),
+      victoryPoints: {resourcesHere: {}, each: -1},
       reserveUnits: {titanium: 3},
 
       metadata: {
         description: 'Spend 3 titanium. -1 VP for every resource here.',
         cardNumber: 'M19',
         renderData: CardRenderer.builder((b) => {
-          b.action('Steal 8 M€ from any player and add a resource cube here.', (eb) => {
-            eb.empty().startAction.text('Steal').nbsp.megacredits(8, {all}).colon().resourceCube(1);
+          b.action('Steal 2 M€ from each player and add a resource cube here.', (eb) => {
+            eb.empty().startAction.text('Steal').nbsp.megacredits(2, {all}).asterix().colon().resourceCube(1);
           }).br.br;
           b.minus().titanium(3);
         }),
@@ -39,12 +37,16 @@ export class AncientShipyards extends Card {
     return true;
   }
 
-  public action(player: Player) {
-    const deferredAction = new StealResources(player, Resources.MEGACREDITS, 8);
-    deferredAction.stealComplete = () => {
-      player.addResourceTo(this, 1);
-    };
-    player.game.defer(deferredAction);
+  public action(player: IPlayer) {
+    const game = player.game;
+    for (const p of game.getPlayers()) {
+      if (p === player) continue;
+      p.stock.steal(Resource.MEGACREDITS, 2, player);
+    }
+    if (game.isSoloMode()) {
+      player.stock.add(Resource.MEGACREDITS, 2);
+    }
+    player.addResourceTo(this, 1);
     return undefined;
   }
 }

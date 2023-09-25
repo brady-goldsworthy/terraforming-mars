@@ -1,5 +1,5 @@
 import {CardName} from '../../../common/cards/CardName';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
 import {ICorporationCard} from '../corporation/ICorporationCard';
@@ -14,7 +14,7 @@ import {Tag} from '../../../common/cards/Tag';
 export class MarsDirect extends Card implements ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.MARS_DIRECT,
       tags: [Tag.MARS],
       startingMegaCredits: 52,
@@ -23,7 +23,7 @@ export class MarsDirect extends Card implements ICorporationCard {
         description: 'You start with 52 M€.',
         cardNumber: '',
         renderData: CardRenderer.builder((b) => {
-          b.megacredits(56).br;
+          b.megacredits(52).br;
           b.corpBox('effect', (ce) => {
             ce.effect('When you play a Mars tag, you pay 1 M€ less for each Mars tag you have.', (eb) => {
               eb.mars(1, {played}).startEffect.megacredits(1).slash().mars(1, {played});
@@ -34,7 +34,7 @@ export class MarsDirect extends Card implements ICorporationCard {
     });
   }
 
-  public override getCardDiscount(player: Player, card: IProjectCard) {
+  public override getCardDiscount(player: IPlayer, card: IProjectCard) {
     if (card.tags.indexOf(Tag.MARS) === -1) {
       return 0;
     }

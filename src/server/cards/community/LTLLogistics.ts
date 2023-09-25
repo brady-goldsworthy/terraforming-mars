@@ -1,6 +1,6 @@
 import {Card} from '../Card';
 import {ICorporationCard} from '../corporation/ICorporationCard';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Tag} from '../../../common/cards/Tag';
 import {IActionCard} from '../ICard';
 import {CardName} from '../../../common/cards/CardName';
@@ -11,7 +11,7 @@ import {Size} from '../../../common/cards/render/Size';
 export class LTLLogistics extends Card implements IActionCard, ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.LTL_LOGISTICS,
       tags: [Tag.SCIENCE],
       startingMegaCredits: 35,
@@ -40,11 +40,11 @@ export class LTLLogistics extends Card implements IActionCard, ICorporationCard 
     });
   }
 
-  public canAct(player: Player): boolean {
+  public canAct(player: IPlayer): boolean {
     return player.cardsInHand.length < 5;
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     player.drawCard(2);
     return undefined
   }

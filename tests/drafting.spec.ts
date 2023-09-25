@@ -1,13 +1,11 @@
 import {CardFinder} from '../src/server/CardFinder';
 import {CardName} from '../src/common/cards/CardName';
 import {cast, finishGeneration} from './TestingUtils';
-// import {Dealer} from '../src/server/Dealer';
 import {expect} from 'chai';
-import {Game} from '../src/server/Game';
-import {getTestPlayer, newTestGame} from './TestGame';
+import {testGame} from './TestGame';
 import {ICard} from '../src/server/cards/ICard';
 import {IProjectCard} from '../src/server/cards/IProjectCard';
-import {Player} from '../src/server/Player';
+import {IPlayer} from '../src/server/IPlayer';
 import {SelectCard} from '../src/server/inputs/SelectCard';
 import {SelectInitialCards} from '../src/server/inputs/SelectInitialCards';
 import {TestPlayer} from './TestPlayer';
@@ -16,9 +14,7 @@ import {Deck} from '../src/server/cards/Deck';
 // Tests for drafting
 describe('drafting', () => {
   it('2 player - project draft', () => {
-    const game = newTestGame(2, {draftVariant: true});
-    const player = getTestPlayer(game, 0);
-    const otherPlayer = getTestPlayer(game, 1);
+    const [game, player, otherPlayer] = testGame(2, {draftVariant: true});
     const drawPile = game.projectDeck.drawPile;
 
     unshiftCards(drawPile, [
@@ -50,7 +46,7 @@ describe('drafting', () => {
       CardName.HACKERS]);
 
     selectCard(player, CardName.BIOFERTILIZER_FACILITY);
-    expect(player.getWaitingFor()).is.undefined;
+    cast(player.getWaitingFor(), undefined);
     selectCard(otherPlayer, CardName.GENE_REPAIR);
 
     expect(cardNames(player.draftedCards)).deep.eq([CardName.BIOFERTILIZER_FACILITY]);
@@ -70,7 +66,7 @@ describe('drafting', () => {
 
 
     selectCard(player, CardName.FISH);
-    expect(player.getWaitingFor()).is.undefined;
+    cast(player.getWaitingFor(), undefined);
     selectCard(otherPlayer, CardName.ACQUIRED_COMPANY);
 
     expect(cardNames(player.draftedCards)).deep.eq([
@@ -93,7 +89,7 @@ describe('drafting', () => {
       CardName.HACKERS]);
 
     selectCard(player, CardName.DECOMPOSERS);
-    expect(player.getWaitingFor()).is.undefined;
+    cast(player.getWaitingFor(), undefined);
     selectCard(otherPlayer, CardName.EARTH_OFFICE);
 
     // No longer drafted cards, they're just cards to buy.
@@ -119,15 +115,14 @@ describe('drafting', () => {
 
   it('2 player - initial draft', () => {
     const shuffle = Deck.shuffle;
-    let game: Game;
+    let player: TestPlayer;
+    let otherPlayer: TestPlayer;
     try {
       Deck.shuffle = function() {};
-      game = newTestGame(2, {draftVariant: true, initialDraftVariant: true});
+      [, player, otherPlayer] = testGame(2, {draftVariant: true, initialDraftVariant: true});
     } finally {
       Deck.shuffle = shuffle;
     }
-    const player = getTestPlayer(game, 0);
-    const otherPlayer = getTestPlayer(game, 1);
 
     // First round
 
@@ -146,7 +141,7 @@ describe('drafting', () => {
       CardName.ARTIFICIAL_LAKE]);
 
     selectCard(player, CardName.ADAPTATION_TECHNOLOGY);
-    expect(player.getWaitingFor()).is.undefined;
+    cast(player.getWaitingFor(), undefined);
     selectCard(otherPlayer, CardName.ALGAE);
 
     expect(cardNames(player.draftedCards)).deep.eq([CardName.ADAPTATION_TECHNOLOGY]);
@@ -167,7 +162,7 @@ describe('drafting', () => {
       CardName.ANTS]);
 
     selectCard(player, CardName.ARCTIC_ALGAE);
-    expect(player.getWaitingFor()).is.undefined;
+    cast(player.getWaitingFor(), undefined);
     selectCard(otherPlayer, CardName.ANTS);
 
     expect(cardNames(player.draftedCards)).deep.eq([
@@ -191,7 +186,7 @@ describe('drafting', () => {
       CardName.ARTIFICIAL_LAKE]);
 
     selectCard(player, CardName.AEROBRAKED_AMMONIA_ASTEROID);
-    expect(player.getWaitingFor()).is.undefined;
+    cast(player.getWaitingFor(), undefined);
     selectCard(otherPlayer, CardName.AQUIFER_PUMPING);
 
     expect(cardNames(player.draftedCards)).deep.eq([
@@ -402,7 +397,7 @@ describe('drafting', () => {
   });
 });
 
-function getWaitingFor(player: Player): SelectCard<IProjectCard> {
+function getWaitingFor(player: IPlayer): SelectCard<IProjectCard> {
   return cast(player.getWaitingFor(), SelectCard<IProjectCard>);
 }
 
@@ -411,11 +406,11 @@ function unshiftCards(deck: Array<IProjectCard>, cards: Array<CardName>) {
   deck.unshift(...cardFinder.cardsFromJSON(cards));
 }
 
-function cardNames(cards: Array<ICard>): Array<CardName> {
+function cardNames(cards: ReadonlyArray<ICard>): Array<CardName> {
   return cards.map((card) => card.name);
 }
 
-function initialCardSelection(player: Player) {
+function initialCardSelection(player: IPlayer) {
   const selectInitialCards = cast(player.getWaitingFor(), SelectInitialCards);
   const corporationCards = cast(selectInitialCards.options[0], SelectCard);
   const preludeCards = selectInitialCards.options.length === 3 ? cast(selectInitialCards.options[1], SelectCard) : undefined;
@@ -427,7 +422,7 @@ function initialCardSelection(player: Player) {
   };
 }
 
-function draftSelection(player: Player) {
+function draftSelection(player: IPlayer) {
   return getWaitingFor(player).cards.map((card) => card.name);
 }
 

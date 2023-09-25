@@ -18,6 +18,7 @@ const RESOURCE_TO_ITEM_TYPE = new Map([
   [CardResource.FLOATER, CardRenderItemType.FLOATERS],
   [CardResource.VENUSIAN_HABITAT, CardRenderItemType.VENUSIAN_HABITAT],
   [CardResource.SPECIALIZED_ROBOT, CardRenderItemType.SPECIALIZED_ROBOT],
+  [CardResource.HYDROELECTRIC_RESOURCE, CardRenderItemType.HYDROELECTRIC_RESOURCE],
 ]);
 
 export class CardRenderDynamicVictoryPoints implements ICardRenderDynamicVictoryPoints {
@@ -82,6 +83,10 @@ export class CardRenderDynamicVictoryPoints implements ICardRenderDynamicVictory
     item.size = Size.SMALL;
     item.anyPlayer = any;
     return new CardRenderDynamicVictoryPoints(item, points, 1);
+  }
+  public static cathedral(): CardRenderDynamicVictoryPoints {
+    const item = new CardRenderItem(CardRenderItemType.CATHEDRAL);
+    return new CardRenderDynamicVictoryPoints(item, 1, 1);
   }
   public static questionmark(): CardRenderDynamicVictoryPoints {
     return new CardRenderDynamicVictoryPoints(undefined, 0, 0);

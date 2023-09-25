@@ -1,5 +1,5 @@
 import {Tag} from '../../../common/cards/Tag';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {Card} from '../Card';
 import {ICorporationCard} from '../corporation/ICorporationCard';
 import {IActionCard} from '../ICard';
@@ -9,7 +9,7 @@ import {SelectOption} from '../../inputs/SelectOption';
 import {SelectCard} from '../../inputs/SelectCard';
 import {OrOptions} from '../../inputs/OrOptions';
 import {LogHelper} from '../../LogHelper';
-import {Resources} from '../../../common/Resources';
+import {Resource} from '../../../common/Resource';
 import {CardType} from '../../../common/cards/CardType';
 import {CardRenderer} from '../render/CardRenderer';
 import {Size} from '../../../common/cards/render/Size';
@@ -20,7 +20,7 @@ import {AltSecondaryTag} from '../../../common/cards/render/AltSecondaryTag';
 export class Astrodrill extends Card implements IActionCard, ICorporationCard {
   constructor() {
     super({
-      cardType: CardType.CORPORATION,
+      type: CardType.CORPORATION,
       name: CardName.ASTRODRILL,
       tags: [Tag.SPACE],
       startingMegaCredits: 40,
@@ -55,41 +55,41 @@ export class Astrodrill extends Card implements IActionCard, ICorporationCard {
     return true;
   }
 
-  public initialAction(player: Player) {
+  public initialAction(player: IPlayer) {
     player.drawCard(2, {
       include: (card) => card.resourceType === CardResource.ASTEROID,
     });
     return undefined;
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     const asteroidCards = player.getResourceCards(CardResource.ASTEROID);
     const opts: Array<PlayerInput> = [];
 
     const gainStandardResource = new SelectOption('Gain a standard resource', 'Gain', () => {
       return new OrOptions(
         new SelectOption('Gain 1 titanium', 'Gain titanium', () => {
-          player.addResource(Resources.TITANIUM, 1, {log: true});
+          player.stock.add(Resource.TITANIUM, 1, {log: true});
           return undefined;
         }),
         new SelectOption('Gain 1 steel', 'Gain steel', () => {
-          player.addResource(Resources.STEEL, 1, {log: true});
+          player.stock.add(Resource.STEEL, 1, {log: true});
           return undefined;
         }),
         new SelectOption('Gain 1 plant', 'Gain plant', () => {
-          player.addResource(Resources.PLANTS, 1, {log: true});
+          player.stock.add(Resource.PLANTS, 1, {log: true});
           return undefined;
         }),
         new SelectOption('Gain 1 energy', 'Gain energy', () => {
-          player.addResource(Resources.ENERGY, 1, {log: true});
+          player.stock.add(Resource.ENERGY, 1, {log: true});
           return undefined;
         }),
         new SelectOption('Gain 1 heat', 'Gain heat', () => {
-          player.addResource(Resources.HEAT, 1, {log: true});
+          player.stock.add(Resource.HEAT, 1, {log: true});
           return undefined;
         }),
         new SelectOption('Gain 1 M€', 'Gain M€', () => {
-          player.addResource(Resources.MEGACREDITS, 1, {log: true});
+          player.stock.add(Resource.MEGACREDITS, 1, {log: true});
           return undefined;
         }),
       );

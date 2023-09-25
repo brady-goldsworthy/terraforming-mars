@@ -1,13 +1,13 @@
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardName} from '../../../common/cards/CardName';
 import {CardResource} from '../../../common/CardResource';
 import {SelectOption} from '../../inputs/SelectOption';
 import {OrOptions} from '../../inputs/OrOptions';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
 
 export class RedSpotObservatory extends Card implements IProjectCard {
@@ -16,7 +16,7 @@ export class RedSpotObservatory extends Card implements IProjectCard {
       cost: 17,
       tags: [Tag.JOVIAN, Tag.SCIENCE],
       name: CardName.RED_SPOT_OBSERVATORY,
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       resourceType: CardResource.FLOATER,
       victoryPoints: 2,
 
@@ -47,7 +47,7 @@ export class RedSpotObservatory extends Card implements IProjectCard {
     return true;
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     if (this.resourceCount < 1) {
       player.addResourceTo(this, 1);
       return undefined;
@@ -64,12 +64,12 @@ export class RedSpotObservatory extends Card implements IProjectCard {
     return new OrOptions(...opts);
   }
 
-  private addResource(player: Player) {
+  private addResource(player: IPlayer) {
     player.addResourceTo(this, 1);
     return undefined;
   }
 
-  private spendResource(player: Player) {
+  private spendResource(player: IPlayer) {
     this.resourceCount--;
     player.drawCard();
     return undefined;

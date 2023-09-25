@@ -7,14 +7,14 @@ import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {SelectCard} from '../../inputs/SelectCard';
 import {SimpleDeferredAction} from '../../deferredActions/DeferredAction';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 
 export class BioengineeringEnclosure extends Card implements IProjectCard, IActionCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.BIOENGINEERING_ENCLOSURE,
       tags: [Tag.ANIMAL],
       cost: 7,
@@ -38,12 +38,12 @@ export class BioengineeringEnclosure extends Card implements IProjectCard, IActi
     });
   }
 
-  public canAct(player: Player): boolean {
+  public canAct(player: IPlayer): boolean {
     // >1 because this player already has bioengineering enclosure.
     return this.resourceCount > 0 && player.getResourceCards(this.resourceType).length > 1;
   }
 
-  public action(player: Player) {
+  public action(player: IPlayer) {
     player.game.defer(new SimpleDeferredAction(
       player,
       () => {

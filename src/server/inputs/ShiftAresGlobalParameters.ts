@@ -1,19 +1,16 @@
-import {PlayerInput} from '../PlayerInput';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
-import {Player} from '../Player';
+import {BasePlayerInput} from '../PlayerInput';
+import {IPlayer} from '../IPlayer';
 import {AresGlobalParametersResponse} from '../../common/inputs/AresGlobalParametersResponse';
 import {InputResponse, isAresGlobalParametersResponse, isShiftAresGlobalParametersResponse} from '../../common/inputs/InputResponse';
 
-export class ShiftAresGlobalParameters implements PlayerInput {
-  public readonly inputType = PlayerInputType.SHIFT_ARES_GLOBAL_PARAMETERS;
-  public title = 'Adjust Ares global parameters up to 1 step.';
-  public buttonLabel = 'Save';
-
+export class ShiftAresGlobalParameters extends BasePlayerInput {
   constructor(
-    public player: Player,
-    public cb: (units: AresGlobalParametersResponse) => undefined) {}
+    public player: IPlayer,
+    public cb: (units: AresGlobalParametersResponse) => undefined) {
+    super('aresGlobalParameters', 'Adjust Ares global parameters up to 1 step.');
+  }
 
-  public process(input: InputResponse, _player: Player) {
+  public process(input: InputResponse, _player: IPlayer) {
     if (!isShiftAresGlobalParametersResponse(input)) {
       throw new Error('Not a valid ShiftAresGlobalParametersResponse');
     }

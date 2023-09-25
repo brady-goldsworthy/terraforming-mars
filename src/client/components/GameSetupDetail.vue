@@ -12,11 +12,12 @@
               <div v-if="gameOptions.pathfindersExpansion" class="create-game-expansion-icon expansion-icon-pathfinders"></div>
               <div v-if="gameOptions.communityCardsOption" class="create-game-expansion-icon expansion-icon-community"></div>
               <div v-if="gameOptions.pathfindersCardsOnlyOption" class="create-game-expansion-icon expansion-icon-community"></div>
-              <div v-if="isPoliticalAgendasOn()" class="create-game-expansion-icon expansion-icon-agendas"></div>
+              <div v-if="isPoliticalAgendasOn" class="create-game-expansion-icon expansion-icon-agendas"></div>
+              <div v-if="gameOptions.ceoExtension" class="create-game-expansion-icon expansion-icon-ceo"></div>
             </li>
 
             <li><div class="setup-item" v-i18n>Board:</div>
-              <span :class="getBoardColorClass(gameOptions.boardName)" v-i18n>{{ gameOptions.boardName }}</span>
+              <span :class="boardColorClass" v-i18n>{{ gameOptions.boardName }}</span>
               &nbsp;
               <span v-if="gameOptions.shuffleMapOption" class="game-config generic" v-i18n>(randomized tiles)</span>
             </li>
@@ -40,15 +41,14 @@
 
             <li v-if="playerNumber > 1">
               <div class="setup-item" v-i18n>Draft:</div>
-              <div v-if="gameOptions.corporationsDraft" class="game-config generic" v-i18n>Corporation</div>
               <div v-if="gameOptions.initialDraftVariant" class="game-config generic" v-i18n>Initial</div>
               <div v-if="gameOptions.draftVariant" class="game-config generic" v-i18n>Research phase</div>
-              <div v-if="!gameOptions.initialDraftVariant && !gameOptions.draftVariant && !gameOptions.corporationsDraft" class="game-config generic" v-i18n>Off</div>
+              <div v-if="!gameOptions.initialDraftVariant && !gameOptions.draftVariant" class="game-config generic" v-i18n>Off</div>
             </li>
 
             <li v-if="gameOptions.escapeVelocityMode">
               <div class="create-game-expansion-icon expansion-icon-escape-velocity"></div>
-              <span>After {{gameOptions.escapeVelocityThreshold}} min, reduce {{gameOptions.escapeVelocityPenalty}} VP every {{gameOptions.escapeVelocityPeriod}} min.</span>
+              <span>{{escapeVelocityDescription}}</span>
             </li>
 
             <li v-if="gameOptions.turmoilExtension && gameOptions.removeNegativeGlobalEvents">
@@ -82,6 +82,17 @@ import {GameOptionsModel} from '@/common/models/GameOptionsModel';
 import {BoardName} from '@/common/boards/BoardName';
 import {RandomMAOptionType} from '@/common/ma/RandomMAOptionType';
 import {AgendaStyle} from '@/common/turmoil/Types';
+import {translateTextWithParams} from '@/client/directives/i18n';
+
+const boardColorClass: Record<BoardName, string> = {
+  [BoardName.THARSIS]: 'game-config board-tharsis map',
+  [BoardName.HELLAS]: 'game-config board-hellas map',
+  [BoardName.ELYSIUM]: 'game-config board-elysium map',
+  [BoardName.AMAZONIS]: 'game-config board-amazonis map',
+  [BoardName.ARABIA_TERRA]: 'game-config board-arabia_terra map',
+  [BoardName.VASTITAS_BOREALIS]: 'game-config board-vastitas_borealis map',
+  [BoardName.TERRA_CIMMERIA]: 'game-config board-terra_cimmeria map',
+};
 
 export default Vue.extend({
   name: 'game-setup-detail',
@@ -96,32 +107,20 @@ export default Vue.extend({
       type: Number,
     },
   },
-  methods: {
+  computed: {
     isPoliticalAgendasOn(): boolean {
       return (this.gameOptions.politicalAgendasExtension !== AgendaStyle.STANDARD);
     },
-    getBoardColorClass(boardName: BoardName): string {
-      switch (boardName) {
-      case BoardName.THARSIS:
-        return 'game-config board-tharsis map';
-      case BoardName.HELLAS:
-        return 'game-config board-hellas map';
-      case BoardName.ELYSIUM:
-        return 'game-config board-elysium map';
-      case BoardName.AMAZONIS:
-        return 'game-config board-amazonis map';
-      case BoardName.ARABIA_TERRA:
-        return 'game-config board-arabia_terra map';
-      case BoardName.VASTITAS_BOREALIS:
-        return 'game-config board-vastitas_borealis map';
-      case BoardName.TERRA_CIMMERIA:
-        return 'game-config board-terra_cimmeria map';
-      default:
-        return 'game-config board-other map';
-      }
+    boardColorClass(): string {
+      return boardColorClass[this.gameOptions.boardName];
     },
-  },
-  computed: {
+    escapeVelocityDescription(): string {
+      const {escapeVelocityThreshold, escapeVelocityPenalty, escapeVelocityPeriod} = this.gameOptions ?? {};
+      if (escapeVelocityThreshold === undefined || escapeVelocityPenalty === undefined || escapeVelocityPeriod === undefined) {
+        return '';
+      }
+      return translateTextWithParams('After ${0} min, reduce ${1} VP every ${2} min.', [escapeVelocityThreshold.toString(), escapeVelocityPenalty.toString(), escapeVelocityPeriod.toString()]);
+    },
     RandomMAOptionType(): typeof RandomMAOptionType {
       return RandomMAOptionType;
     },
@@ -129,4 +128,3 @@ export default Vue.extend({
 });
 
 </script>
-

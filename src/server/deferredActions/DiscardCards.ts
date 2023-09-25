@@ -1,10 +1,10 @@
-import {Player} from '../Player';
+import {IPlayer} from '../IPlayer';
 import {SelectCard} from '../inputs/SelectCard';
 import {DeferredAction, Priority} from './DeferredAction';
 
 export class DiscardCards extends DeferredAction {
   constructor(
-    player: Player,
+    player: IPlayer,
     public count: number = 1,
     public title: string = 'Select ' + count + ' card' + (count > 1 ? 's' : '') + ' to discard',
   ) {
@@ -13,8 +13,9 @@ export class DiscardCards extends DeferredAction {
 
   public execute() {
     if (this.player.cardsInHand.length <= this.count) {
-      const cards = this.player.cardsInHand.splice(0, this.player.cardsInHand.length);
-      cards.forEach((card) => this.player.game.projectDeck.discard(card));
+      for (const card of [...this.player.cardsInHand]) {
+        this.player.discardCardFromHand(card);
+      }
       return undefined;
     }
     return new SelectCard(
@@ -23,8 +24,7 @@ export class DiscardCards extends DeferredAction {
       this.player.cardsInHand,
       (cards) => {
         for (const card of cards) {
-          this.player.cardsInHand.splice(this.player.cardsInHand.indexOf(card), 1);
-          this.player.game.projectDeck.discard(card);
+          this.player.discardCardFromHand(card);
         }
         return undefined;
       },

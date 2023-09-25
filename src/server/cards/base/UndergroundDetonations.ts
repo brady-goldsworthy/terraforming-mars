@@ -1,18 +1,18 @@
-import {IActionCard} from '../ICard';
 import {IProjectCard} from '../IProjectCard';
+import {IActionCard} from '../ICard';
 import {Tag} from '../../../common/cards/Tag';
-import {Card} from '../Card';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
-import {Resources} from '../../../common/Resources';
 import {CardName} from '../../../common/cards/CardName';
-import {SelectPaymentDeferred} from '../../deferredActions/SelectPaymentDeferred';
 import {CardRenderer} from '../render/CardRenderer';
+import { IPlayer } from '../../IPlayer';
+import { Card } from '../Card';
+import { SelectPaymentDeferred } from '../../deferredActions/SelectPaymentDeferred';
+import { Resource } from '../../../common/Resource';
 
 export class UndergroundDetonations extends Card implements IActionCard, IProjectCard {
   constructor() {
     super({
-      cardType: CardType.ACTIVE,
+      type: CardType.ACTIVE,
       name: CardName.UNDERGROUND_DETONATIONS,
       tags: [Tag.BUILDING],
       cost: 6,
@@ -27,12 +27,12 @@ export class UndergroundDetonations extends Card implements IActionCard, IProjec
       },
     });
   }
-  public canAct(player: Player): boolean {
-    return player.canAfford(8, {steel: true});
+  public canAct(player: IPlayer): boolean {
+    return player.canAfford({cost: 8, steel: true});
   }
-  public action(player: Player) {
+  public action(player: IPlayer) {
     player.game.defer(new SelectPaymentDeferred(player, 8, {canUseSteel: true, title: 'Select how to pay for action'}));
-    player.production.add(Resources.HEAT, 2);
+    player.production.add(Resource.HEAT, 2);
     return undefined;
   }
 }

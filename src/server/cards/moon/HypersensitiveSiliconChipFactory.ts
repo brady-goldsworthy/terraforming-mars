@@ -3,14 +3,14 @@ import {CardType} from '../../../common/cards/CardType';
 import {Tag} from '../../../common/cards/Tag';
 import {CardRenderer} from '../render/CardRenderer';
 import {Card} from '../Card';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {all} from '../Options';
 
 export class HypersensitiveSiliconChipFactory extends Card {
   constructor() {
     super({
       name: CardName.HYPERSENSITIVE_SILICON_CHIP_FACTORY,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       tags: [Tag.BUILDING],
       cost: 11,
 

@@ -3,7 +3,7 @@ import {CardType} from '../../../common/cards/CardType';
 import {IProjectCard} from '../IProjectCard';
 import {Tag} from '../../../common/cards/Tag';
 import {CardRenderer} from '../render/CardRenderer';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {Card} from '../Card';
 import {all} from '../Options';
 
@@ -11,7 +11,7 @@ export class HE3FusionPlant extends Card implements IProjectCard {
   constructor() {
     super({
       name: CardName.HE3_FUSION_PLANT,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       tags: [Tag.POWER, Tag.POWER, Tag.MOON],
       cost: 12,
 

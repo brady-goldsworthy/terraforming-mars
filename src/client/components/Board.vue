@@ -5,7 +5,7 @@
             {{ tileView }} tiles
           </div>
         </div>
-        <div class="board-outer-spaces">
+        <div class="board-outer-spaces" id="colony_spaces">
             <board-space :space="getSpaceById('01')" text="Ganymede Colony" :tileView="tileView"></board-space>
             <board-space :space="getSpaceById('02')" text="Phobos Space Haven" :tileView="tileView"></board-space>
             <board-space :space="getSpaceById('69')" text="Stanford Torus" :tileView="tileView"></board-space>
@@ -39,7 +39,7 @@
 
             <div class="global-numbers-oceans">
               <span v-if="this.oceans_count === this.constants.MAX_OCEAN_TILES">
-                <img width="26" src="/assets/misc/circle-checkmark.png" class="board-ocean-checkmark" :alt="$t('Completed!')">
+                <img width="26" src="assets/misc/circle-checkmark.png" class="board-ocean-checkmark" :alt="$t('Completed!')">
               </span>
               <span v-else>
                 {{this.oceans_count}}/{{this.constants.MAX_OCEAN_TILES}}
@@ -82,7 +82,6 @@
               v-for="curSpace in getAllSpacesOnMars()"
               :key="curSpace.id"
               :space="curSpace"
-              :is_selectable="true"
               :aresExtension="aresExtension"
               :tileView="tileView"
               data-test="board-space"
@@ -435,7 +434,7 @@ export default Vue.extend({
       const oceans_count = this.oceans_count || 0;
       const leftover = constants.MAX_OCEAN_TILES - oceans_count;
       if (leftover === 0) {
-        return '<img width="26" src="/assets/misc/circle-checkmark.png" class="board-ocean-checkmark" :alt="$t(\'Completed!\')">';
+        return '<img width="26" src="assets/misc/circle-checkmark.png" class="board-ocean-checkmark" :alt="$t(\'Completed!\')">';
       } else {
         return `${oceans_count}/${constants.MAX_OCEAN_TILES}`;
       }

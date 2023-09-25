@@ -3,14 +3,13 @@ import {getLocalVue} from './getLocalVue';
 import {expect} from 'chai';
 import ShiftAresGlobalParameters from '@/client/components/ShiftAresGlobalParameters.vue';
 import {PlayerInputModel} from '@/common/models/PlayerInputModel';
-import {PlayerInputType} from '@/common/input/PlayerInputType';
 import {PartyName} from '@/common/turmoil/PartyName';
 
 describe('ShiftAresGlobalParameters', function() {
   const mockPlayerModel: PlayerInputModel = {
     title: 'Testing, baby!',
     buttonLabel: 'Click me!',
-    inputType: PlayerInputType.SHIFT_ARES_GLOBAL_PARAMETERS,
+    inputType: 'aresGlobalParameters',
     amount: undefined,
     options: undefined,
     cards: undefined,
@@ -21,15 +20,21 @@ describe('ShiftAresGlobalParameters', function() {
     canUseLunaTradeFederationTitanium: undefined,
     canUseHeat: undefined,
     canUseSeeds: undefined,
-    canUseData: undefined,
+    canUseAuroraiData: undefined,
+    canUseGraphene: undefined,
+    canUseAsteroids: undefined,
+    canUseSpireScience: undefined,
     players: undefined,
     availableSpaces: undefined,
     availableParties: [PartyName.MARS, PartyName.SCIENTISTS, PartyName.UNITY, PartyName.GREENS, PartyName.REDS, PartyName.KELVINISTS],
     microbes: undefined,
     floaters: undefined,
-    science: undefined,
+    lunaArchivesScience: undefined,
+    spireScience: undefined,
     seeds: undefined,
-    data: undefined,
+    auroraiData: undefined,
+    graphene: undefined,
+    kuiperAsteroids: undefined,
     coloniesModel: undefined,
     payProduction: undefined,
     aresData: {
@@ -55,6 +60,7 @@ describe('ShiftAresGlobalParameters', function() {
       milestoneResults: [],
     },
     selectBlueCardAction: false,
+    showReset: false,
   };
 
   it('sets up data', function() {
@@ -78,7 +84,6 @@ describe('ShiftAresGlobalParameters', function() {
       highOceanDelta: 0,
       temperatureDelta: 0,
       oxygenDelta: 0,
-      ADJUSTMENT_RANGE: [-1, 0, 1],
     });
   });
 });

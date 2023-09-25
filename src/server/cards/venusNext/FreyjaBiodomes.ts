@@ -1,11 +1,11 @@
 import {Tag} from '../../../common/cards/Tag';
 import {CardType} from '../../../common/cards/CardType';
-import {Player} from '../../Player';
+import {IPlayer} from '../../IPlayer';
 import {CardResource} from '../../../common/CardResource';
 import {SelectCard} from '../../inputs/SelectCard';
 import {ICard} from '../ICard';
 import {CardName} from '../../../common/cards/CardName';
-import {CardRequirements} from '../CardRequirements';
+import {CardRequirements} from '../requirements/CardRequirements';
 import {CardRenderer} from '../render/CardRenderer';
 import {Card} from '../Card';
 import {IProjectCard} from '../IProjectCard';
@@ -14,7 +14,7 @@ export class FreyjaBiodomes extends Card implements IProjectCard {
   constructor() {
     super({
       name: CardName.FREYJA_BIODOMES,
-      cardType: CardType.AUTOMATED,
+      type: CardType.AUTOMATED,
       tags: [Tag.PLANT, Tag.VENUS],
       cost: 14,
 
@@ -38,13 +38,13 @@ export class FreyjaBiodomes extends Card implements IProjectCard {
       },
     });
   }
-  public getResCards(player: Player): ICard[] {
+  public getResCards(player: IPlayer): ICard[] {
     let resourceCards = player.getResourceCards(CardResource.ANIMAL);
     resourceCards = resourceCards.concat(player.getResourceCards(CardResource.MICROBE));
     return resourceCards.filter((card) => card.tags.includes(Tag.VENUS));
   }
 
-  public override bespokePlay(player: Player) {
+  public override bespokePlay(player: IPlayer) {
     const cards = this.getResCards(player);
 
     if (cards.length > 1) {

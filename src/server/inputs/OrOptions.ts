@@ -1,24 +1,18 @@
-import {PlayerInput} from '../PlayerInput';
-import {PlayerInputType} from '../../common/input/PlayerInputType';
-import {Message} from '../../common/logs/Message';
+import {BasePlayerInput, PlayerInput} from '../PlayerInput';
 import {InputResponse, isOrOptionsResponse} from '../../common/inputs/InputResponse';
-import {Player} from '../Player';
+import {IPlayer} from '../IPlayer';
 
-export class OrOptions implements PlayerInput {
+export class OrOptions extends BasePlayerInput {
   public cb(): PlayerInput | undefined {
     return undefined;
   }
-  public title: string | Message = 'Select one option';
-  public buttonLabel: string = 'Save';
   public options: Array<PlayerInput>;
-  public readonly inputType = PlayerInputType.OR_OPTIONS;
-  constructor(
-    ...options: Array<PlayerInput>
-  ) {
+  constructor(...options: Array<PlayerInput>) {
+    super('or', 'Select one option');
     this.options = options;
   }
 
-  public process(input: InputResponse, player: Player) {
+  public process(input: InputResponse, player: IPlayer) {
     if (!isOrOptionsResponse(input)) {
       throw new Error('Not a valid OrOptionsResponse');
     }
