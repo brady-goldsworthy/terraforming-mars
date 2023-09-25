@@ -49,7 +49,7 @@ import {GameSetup} from './GameSetup';
 import {GameCards} from './GameCards';
 import {GlobalParameter} from '../common/GlobalParameter';
 import {AresSetup} from './ares/AresSetup';
-import {IMoonData} from './moon/IMoonData';
+import {MoonData} from './moon/MoonData';
 import {MoonExpansion} from './moon/MoonExpansion';
 import {TurmoilHandler} from './turmoil/TurmoilHandler';
 import {SeededRandom} from '../common/utils/Random';
@@ -128,7 +128,7 @@ export class Game implements IGame, Logger {
   public discardedColonies: Array<IColony> = []; // Not serialized
   public turmoil: Turmoil | undefined;
   public aresData: AresData | undefined;
-  public moonData: IMoonData | undefined;
+  public moonData: MoonData | undefined;
   public pathfindersData: PathfindersData | undefined;
 
   // Card-specific data
@@ -142,6 +142,8 @@ export class Game implements IGame, Logger {
   public gagarinBase: Array<SpaceId> = [];
   // St. Joseph of Cupertino Mission
   stJosephCathedrals: Array<SpaceId> = [];
+  // Mars Nomads
+  nomadSpace: SpaceId | undefined = undefined;
 
   // The set of tags available in this game.
   public readonly tags: ReadonlyArray<Tag>;
@@ -393,6 +395,7 @@ export class Game implements IGame, Logger {
       fundedAwards: serializeFundedAwards(this.fundedAwards),
       gagarinBase: this.gagarinBase,
       stJosephCathedrals: this.stJosephCathedrals,
+      nomadSpace: this.nomadSpace,
       gameAge: this.gameAge,
       gameLog: this.gameLog,
       gameOptions: this.gameOptions,
@@ -401,7 +404,7 @@ export class Game implements IGame, Logger {
       initialDraftIteration: this.initialDraftIteration,
       lastSaveId: this.lastSaveId,
       milestones: this.milestones.map((m) => m.name),
-      moonData: IMoonData.serialize(this.moonData),
+      moonData: MoonData.serialize(this.moonData),
       oxygenLevel: this.oxygenLevel,
       passedPlayers: Array.from(this.passedPlayers),
       pathfindersData: PathfindersData.serialize(this.pathfindersData),
@@ -1561,7 +1564,7 @@ export class Game implements IGame, Logger {
 
     // Reload moon elements if needed
     if (d.moonData !== undefined && gameOptions.moonExpansion === true) {
-      game.moonData = IMoonData.deserialize(d.moonData, players);
+      game.moonData = MoonData.deserialize(d.moonData, players);
     }
 
     if (d.pathfindersData !== undefined && gameOptions.pathfindersExpansion === true) {
@@ -1598,6 +1601,7 @@ export class Game implements IGame, Logger {
     game.gagarinBase = d.gagarinBase;
     // TODO(kberg): remove ?? [] by 2023-11-01
     game.stJosephCathedrals = d.stJosephCathedrals ?? [];
+    game.nomadSpace = d.nomadSpace;
 
     // Still in Draft or Research of generation 1
     if (game.generation === 1 && players.some((p) => p.corporations.length === 0)) {

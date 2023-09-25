@@ -189,6 +189,7 @@ const moduleAbbreviations: Record<GameModule, string> = {
   base: 'b',
   corpera: 'c',
   prelude: 'p',
+  prelude2: '2',
   venus: 'v',
   colonies: 'C',
   turmoil: 't',
@@ -201,8 +202,8 @@ const moduleAbbreviations: Record<GameModule, string> = {
   ceo: 'l', // ceo abbreviation is 'l' for leader, since both 'C' are already taken
 };
 
-// TODO(kberg): make this  use suffixModules.
-const ALL_MODULES = 'bcpvCt*ramPl';
+// TODO(kberg): make this use suffixModules.
+const ALL_MODULES = 'bcpvCt*ramPl2o';
 
 type TypeOption = CardType | 'colonyTiles' | 'globalEvents' | 'milestones' | 'awards';
 type TagOption = Tag | 'none';
@@ -305,6 +306,7 @@ export default (Vue as WithRefs<Refs>).extend({
         base: true,
         corpera: true,
         prelude: true,
+        prelude2: true,
         venus: true,
         colonies: true,
         turmoil: true,
@@ -497,6 +499,7 @@ export default (Vue as WithRefs<Refs>).extend({
       case 'base': return 'Base';
       case 'corpera': return 'Corporate Era';
       case 'prelude': return 'Prelude';
+      case 'prelude2': return 'Prelude 2';
       case 'venus': return 'Venus Next';
       case 'colonies': return 'Colonies';
       case 'turmoil': return 'Turmoil';

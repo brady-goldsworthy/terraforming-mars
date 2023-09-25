@@ -1,12 +1,9 @@
 import {ICorporationCard} from '../corporation/ICorporationCard';
 import {IPlayer} from '../../IPlayer';
 import {Tag} from '../../../common/cards/Tag';
-import {IGame} from '../../IGame';
 import {Resource} from '../../../common/Resource';
 import {CardType} from '../../../common/cards/CardType';
 import {CardName} from '../../../common/cards/CardName';
-import {IColony} from '../../colonies/IColony';
-import {SelectColony} from '../../inputs/SelectColony';
 import {Card} from '../Card';
 import {CardRenderer} from '../render/CardRenderer';
 import {ColoniesHandler} from '../../colonies/ColoniesHandler';
@@ -27,7 +24,7 @@ export class Aridor extends Card implements ICorporationCard {
         description: 'You start with 30 M€. As your first action, put an additional Colony Tile of your choice into play, and build a colony on it for free if possible.',
         renderData: CardRenderer.builder((b) => {
           b.br;
-          b.megacredits(30).nbsp.placeColony().nbsp.colonies(1);
+          b.megacredits(30).nbsp.colonyTile().nbsp.colonies(1);
           b.corpBox('effect', (ce) => {
             ce.effect('When you get a new type of tag in play [event cards do not count], increase your M€ production 1 step.', (eb) => {
               eb.diverseTag().startEffect.production((pb) => pb.megacredits(1));
@@ -49,9 +46,6 @@ export class Aridor extends Card implements ICorporationCard {
         game.log('${0} added a new Colony tile: ${1}', (b) => b.player(player).colony(colony));
         this.checkActivation(colony, game);
         // TODO(kberg): remove this colony from discarded?
-        if (colony.isActive) {
-          colony.addColony(player);
-        }
       } else {
         throw new Error(`Colony ${colony.name} is not a discarded colony`);
       }

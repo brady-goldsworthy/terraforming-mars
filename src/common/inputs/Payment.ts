@@ -6,10 +6,12 @@ export const PAYMENT_KEYS = [
   'titanium',
   'microbes',
   'floaters',
-  'science',
+  'lunaArchivesScience',
+  'spireScience',
   'seeds',
   'auroraiData',
-  'graphene'] as const;
+  'graphene',
+  'kuiperAsteroids'] as const;
 export type PaymentKey = typeof PAYMENT_KEYS[number];
 
 /**
@@ -35,7 +37,9 @@ export type Payment = {
   // Dirigibles corporation can spend its floaters for cards with Venus tags.
   floaters: number;
   // Luna Archives corporation can spend its science resources for cards with Moon tags.
-  science: number;
+  lunaArchivesScience: number;
+  // Spire corporation can spend its science resources on standrad projects.
+  spireScience: number;
   // TODO(kberg): add test for Soylent Seedling Systems + Psychophiles.
   // Soylent Seedling Systems corporation can use its seeds to pay for cards with plant tags, or the standard greenery project.
   seeds: number;
@@ -43,6 +47,8 @@ export type Payment = {
   auroraiData: number;
   // Graphene is a Carbon Nanosystems resource that pays for city and space projects.
   graphene: number;
+  // Asteroids is a Kuiper Cooperative resource that pays for aquifer and asteroid standard projects.
+  kuiperAsteroids: number;
 }
 
 export function isPayment(obj: unknown): obj is Payment {
@@ -61,10 +67,12 @@ export namespace Payment {
     titanium: 0,
     microbes: 0,
     floaters: 0,
-    science: 0,
+    lunaArchivesScience: 0,
+    spireScience: 0,
     seeds: 0,
     auroraiData: 0,
     graphene: 0,
+    kuiperAsteroids: 0,
   } as const;
 
   export interface Options {
@@ -72,10 +80,12 @@ export namespace Payment {
     titanium: boolean,
     floaters: boolean,
     microbes: boolean,
-    science: boolean,
+    lunaArchivesScience: boolean,
+    spireScience: boolean,
     seeds: boolean,
     auroraiData: boolean,
     graphene: boolean,
+    kuiperAsteroids: boolean,
   }
 
   export function of(payment: Partial<Payment>) : Payment {
@@ -83,13 +93,15 @@ export namespace Payment {
       auroraiData: payment.auroraiData ?? 0,
       floaters: payment.floaters ?? 0,
       heat: payment.heat ?? 0,
+      lunaArchivesScience: payment.lunaArchivesScience ?? 0,
+      spireScience: payment.spireScience ?? 0,
       megaCredits: payment.megaCredits ?? 0,
       microbes: payment.microbes ?? 0,
-      science: payment.science ?? 0,
       seeds: payment.seeds ?? 0,
       steel: payment.steel ?? 0,
       titanium: payment.titanium ?? 0,
       graphene: payment.graphene ?? 0,
+      kuiperAsteroids: payment.kuiperAsteroids ?? 0,
     };
   }
 }

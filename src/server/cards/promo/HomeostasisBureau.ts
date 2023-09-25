@@ -24,15 +24,17 @@ export class HomeostasisBureau extends Card implements IProjectCard {
         cardNumber: '',
         renderData: CardRenderer.builder((b) => {
           b.effect('When you raise the temperature, gain 3 M€.', (eb) => eb.temperature(1).startEffect.megacredits(3));
+          b.br;
+          b.production((b) => b.heat(2));
         }),
         description: 'Increase your heat production 2 steps.',
       },
     });
   }
 
-  onGlobalParameterIncrease?(player: IPlayer, parameter: GlobalParameter, _steps: number) {
+  onGlobalParameterIncrease?(player: IPlayer, parameter: GlobalParameter, steps: number) {
     if (parameter === GlobalParameter.TEMPERATURE) {
-      player.stock.add(Resource.MEGACREDITS, 3, {log: true});
+      player.stock.add(Resource.MEGACREDITS, 3 * steps, {log: true});
     }
   }
 }
